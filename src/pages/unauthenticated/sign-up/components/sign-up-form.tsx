@@ -1,0 +1,121 @@
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { TypographyH2, TypographyP } from '@/components/ui/typography';
+import { useNavigate } from 'react-router-dom';
+import { signUpSchema, TypeSignUpSchema } from '../schema';
+
+const SignUpForm = () => {
+  const navigate = useNavigate();
+  const form = useForm<TypeSignUpSchema>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
+
+  const onClickSignUp = (values: TypeSignUpSchema) => {
+    console.log(values);
+  };
+
+  const onClickSignIn = () => {
+    navigate('/auth/sign-in');
+  };
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onClickSignUp)}
+        className='w-3/5 space-y-4'
+      >
+        <div>
+          <TypographyH2 className='text-primary'>Sign In!</TypographyH2>
+          <TypographyP>
+            Welcome back! Your ideas are waiting for you.
+          </TypographyP>
+        </div>
+        <FormField
+          control={form.control}
+          name='username'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input placeholder='Username' {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name='email'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder='Email Address' type='email' {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name='password'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input placeholder='Password' type='password' {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name='confirmPassword'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder='Confirm Password'
+                  type='password'
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type='submit' className='w-full'>
+          Sign up
+        </Button>
+
+        <Separator />
+
+        <Button onClick={onClickSignIn} variant={'outline'} className='w-full'>
+          Sign in
+        </Button>
+      </form>
+    </Form>
+  );
+};
+
+export default SignUpForm;
