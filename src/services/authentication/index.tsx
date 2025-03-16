@@ -2,28 +2,14 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import axiosRequest from '..';
 import { useDispatch } from 'react-redux';
-import { signIn } from '@/features/auth/auth.slice';
-
-interface BaseResponse {
-  status: string;
-  message: string;
-  code: number;
-}
-
-interface AuthUser {
-  id: string;
-  username: string;
-  email: string;
-}
-
-interface AuthResponse extends BaseResponse {
-  data: AuthUser;
-}
-
-interface ISignInCredentials {
-  username: string;
-  password: string;
-}
+import { signIn } from '@/store/auth/auth.slice';
+import { BaseResponse } from '@/type';
+import {
+  AuthResponse,
+  AuthUser,
+  ISignInCredentials,
+  ISignUpCredentials,
+} from './type';
 
 const useAuthenticationQuery = () => {
   const dispatch = useDispatch();
@@ -37,10 +23,24 @@ const useAuthenticationQuery = () => {
 
       dispatch(signIn(response.data));
 
-      return response.data.data;
+      return response.data.data ?? null;
     },
     enabled: false,
     retry: false,
+    staleTime: 0,
+  });
+
+  const signUpUser = useMutation({
+    mutationKey: ['auth.sign-up-user'],
+    mutationFn: async (
+      credentials: ISignUpCredentials
+    ): Promise<BaseResponse> => {
+      const response = await axiosRequest.post('/auth/register', credentials, {
+        withCredentials: true,
+      });
+
+      return response.data;
+    },
   });
 
   const signInUser = useMutation<
@@ -74,7 +74,7 @@ const useAuthenticationQuery = () => {
     },
   });
 
-  return { checkUser, signInUser, signOutUser };
+  return { checkUser, signInUser, signOutUser, signUpUser };
 };
 
 export default useAuthenticationQuery;

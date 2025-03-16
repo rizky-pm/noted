@@ -5,16 +5,15 @@ import { useSelector } from 'react-redux';
 import { Navigate, Outlet } from 'react-router-dom';
 
 const UnauthenticatedRoot = () => {
-  console.log('Unauthenticated');
   const { checkUser } = useAuthenticationQuery();
-  const { isLoading, refetch } = checkUser;
+  const { refetch, isPending } = checkUser;
   const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     refetch();
-  }, []);
+  }, [refetch]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isPending) return <div>Loading...</div>;
 
   return user ? (
     <Navigate to='/' replace />

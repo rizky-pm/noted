@@ -14,9 +14,12 @@ import { Separator } from '@/components/ui/separator';
 import { TypographyH2, TypographyP } from '@/components/ui/typography';
 import { useNavigate } from 'react-router-dom';
 import { signUpSchema, TypeSignUpSchema } from '../schema';
+import useAuthenticationQuery from '@/services/authentication';
+import { toast } from 'sonner';
 
 const SignUpForm = () => {
   const navigate = useNavigate();
+  const { signUpUser } = useAuthenticationQuery();
   const form = useForm<TypeSignUpSchema>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -27,8 +30,26 @@ const SignUpForm = () => {
     },
   });
 
-  const onClickSignUp = (values: TypeSignUpSchema) => {
-    console.log(values);
+  const onClickSignUp = async (credentials: TypeSignUpSchema) => {
+    console.log(credentials);
+    signUpUser.mutateAsync(credentials, {
+      onSuccess: (data) => {
+        console.log(data.message);
+        toast.success(
+          `${data.message}, you'll be redirected to sign in page in a moment.`,
+          {
+            onAutoClose: () => {
+              navigate('/auth/sign-in');
+            },
+          }
+        );
+      },
+      onError: (data) => {
+        toast.error(data.message);
+
+        console.error(data);
+      },
+    });
   };
 
   const onClickSignIn = () => {

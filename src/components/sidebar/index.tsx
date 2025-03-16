@@ -5,7 +5,7 @@ import { SIDEBAR_MENU } from '@/constant';
 import { Button } from '../ui/button';
 import useAuthenticationQuery from '@/services/authentication';
 import { useDispatch } from 'react-redux';
-import { signOut } from '@/features/auth/auth.slice';
+import { signOut } from '@/store/auth/auth.slice';
 
 const Sidebar = () => {
   const dispatch = useDispatch();

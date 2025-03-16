@@ -25,15 +25,24 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
-import { TAGS } from '@/constant';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { createNewNoteSchema } from '@/schema';
-import moment from 'moment';
+import useNoteService from '@/services/note';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import { DialogClose } from '@radix-ui/react-dialog';
+import { useRef } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
 const CreateNewNoteDialog = () => {
+  const { createNewNote } = useNoteService();
+  const query = useQueryClient();
+  const tags = useSelector((state: RootState) => state.dashboard.tags);
+  const closeDialogRef = useRef<HTMLDivElement | null>(null);
+
   const form = useForm<z.infer<typeof createNewNoteSchema>>({
     resolver: zodResolver(createNewNoteSchema),
     defaultValues: {
@@ -46,10 +55,21 @@ const CreateNewNoteDialog = () => {
   const onSubmitNewNote = (values: z.infer<typeof createNewNoteSchema>) => {
     const payload = {
       ...values,
-      createdAt: moment().unix(),
     };
 
-    console.log(payload);
+    createNewNote.mutateAsync(payload, {
+      onSuccess: () => {
+        toast.success('Success create new note');
+        query.invalidateQueries({ queryKey: ['note.get-all'] });
+
+        if (closeDialogRef) {
+          closeDialogRef.current?.click();
+        }
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    });
   };
 
   const contentLength = form.watch('content').length;
@@ -67,8 +87,7 @@ const CreateNewNoteDialog = () => {
         <DialogHeader>
           <DialogTitle>Take a Note</DialogTitle>
           <DialogDescription>
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Click save
-            when you're done.
+            Quick, simple, and always accessible. What’s on your mind?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -115,8 +134,8 @@ const CreateNewNoteDialog = () => {
                         <SelectValue placeholder='Tag' />
                       </SelectTrigger>
                       <SelectContent>
-                        {TAGS.map((tag) => (
-                          <SelectItem key={tag.id} value={tag.value}>
+                        {tags.map((tag) => (
+                          <SelectItem key={tag._id} value={tag.code}>
                             {tag.label}
                           </SelectItem>
                         ))}
@@ -156,6 +175,9 @@ const CreateNewNoteDialog = () => {
             </Button>
           </form>
         </Form>
+        <DialogClose asChild>
+          <div ref={closeDialogRef} id='close-dialog' />
+        </DialogClose>
       </DialogContent>
     </Dialog>
   );

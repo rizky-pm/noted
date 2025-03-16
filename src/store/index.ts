@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 
-import authReducer from '../features/auth/auth.slice';
+import authReducer from './auth/auth.slice';
+import dashboardReducer from '@/pages/authenticated/dashboard/state';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    dashboard: dashboardReducer,
   },
 });
 

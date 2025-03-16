@@ -1,36 +1,33 @@
-import moment from 'moment';
-import { CircleUserRound, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 
-import { INoteCard } from '@/type';
+import { INote } from '@/type';
 import { Badge } from '../ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
-import { formatTimeAgo, getInitialName } from '@/lib/utils';
+import { formatTimeAgo } from '@/lib/utils';
 
 interface IProps {
-  data: INoteCard;
+  data: INote;
 }
 
 const NoteCard = (props: IProps) => {
   const { data } = props;
-  const { id, content, createdAt, createdBy, modifiedAt, tag, title } = data;
+  const { content, createdAt, updatedAt, title, tag } = data;
 
-  const timestamp = modifiedAt ? modifiedAt : createdAt;
+  const timestamp = updatedAt ? updatedAt : createdAt;
 
   return (
-    <Card className='h-60 w-80 overflow-hidden'>
+    <Card className='h-60 w-80 overflow-hidden cursor-pointer hover:bg-muted-foreground/10 transition-all'>
       <CardHeader>
         <CardTitle className='truncate'>{title}</CardTitle>
         <div>
-          <Badge>Badge</Badge>
+          <Badge>{tag.label}</Badge>
         </div>
       </CardHeader>
       <CardContent className='mb-auto'>
@@ -38,27 +35,9 @@ const NoteCard = (props: IProps) => {
       </CardContent>
       <CardFooter className='flex justify-between gap-2 py-4 text-xs'>
         <div className='flex items-center gap-2'>
-          <Avatar>
-            <AvatarImage
-              src='https://github.com/shadcn.png'
-              className='w-5 h-5 rounded-full'
-              alt='@shadcn'
-            />
-            <AvatarFallback className='p-2 rounded-full'>
-              {getInitialName(createdBy)}
-            </AvatarFallback>
-          </Avatar>
-
-          <p className='truncate max-w-[7.1875rem]'>{createdBy}</p>
-        </div>
-
-        <div className='flex items-center gap-2'>
           <Clock className='w-4 h-4' />
 
-          <p className=''>
-            {/* {moment.unix(timestamp).format('DD MMM YYYY')} */}
-            {formatTimeAgo(timestamp)}
-          </p>
+          <p className=''>{formatTimeAgo(timestamp)}</p>
         </div>
       </CardFooter>
     </Card>

@@ -16,7 +16,8 @@ import { TypographyH2, TypographyP } from '@/components/ui/typography';
 import { useNavigate } from 'react-router-dom';
 import useAuthenticationQuery from '@/services/authentication';
 import { useDispatch } from 'react-redux';
-import { signIn } from '@/features/auth/auth.slice';
+import { signIn } from '@/store/auth/auth.slice';
+import { toast } from 'sonner';
 
 const SignInForm = () => {
   const { signInUser } = useAuthenticationQuery();
@@ -34,14 +35,17 @@ const SignInForm = () => {
     const payload = values;
     signInUser.mutate(payload, {
       onSuccess: (data) => {
-        dispatch(signIn(data));
-        navigate('/');
+        toast.success('Login successfull', {
+          onAutoClose: () => {
+            dispatch(signIn(data));
+            navigate('/');
+          },
+          duration: 2000,
+        });
       },
       onError: (error) => {
-        console.error(
-          'Login failed',
-          error.response?.data.message || 'Unknown error'
-        );
+        toast.error(`Login failed, ${error.response?.data.message}`);
+        console.error(error.response?.data.message || 'Unknown error');
       },
     });
   };
@@ -94,7 +98,12 @@ const SignInForm = () => {
 
         <Separator />
 
-        <Button onClick={onClickSignUp} variant={'outline'} className='w-full'>
+        <Button
+          onClick={onClickSignUp}
+          type='button'
+          variant={'outline'}
+          className='w-full'
+        >
           Sign up
         </Button>
       </form>
