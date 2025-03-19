@@ -1,0 +1,93 @@
+import { Button } from '@/components/ui/button';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer';
+import { Input } from '@/components/ui/input';
+import { RotateCcw, Search, Settings } from 'lucide-react';
+import { searchSchema, TypeSearchSchema } from './schema';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { useDispatch, useSelector } from 'react-redux';
+import { applyFilters } from './actions.slice';
+import { RootState } from '@/store';
+
+const Actions = () => {
+  const filters = useSelector((state: RootState) => state.filters);
+  const dispatch = useDispatch();
+
+  const form = useForm<TypeSearchSchema>({
+    resolver: zodResolver(searchSchema),
+    defaultValues: {
+      searchTerm: '',
+    },
+  });
+
+  const onSearch = (values: TypeSearchSchema) => {
+    dispatch(applyFilters({ ...filters, title: values.searchTerm }));
+  };
+
+  const onResetFilter = () => {
+    form.reset();
+    dispatch(applyFilters({ title: null }));
+  };
+
+  console.log({ filters });
+
+  return (
+    <div className='flex gap-2'>
+      <Form {...form}>
+        <form className='flex gap-2' onSubmit={form.handleSubmit(onSearch)}>
+          <FormField
+            control={form.control}
+            name='searchTerm'
+            render={({ field }) => (
+              <FormItem>
+                <Input
+                  className='w-80'
+                  placeholder='Search by title'
+                  {...field}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button variant={'outline'} size={'icon'}>
+            <Search />
+          </Button>
+        </form>
+      </Form>
+
+      <div className='self-start'>
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button variant={'outline'} size={'icon'}>
+              <Settings />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Sort by</DrawerTitle>
+              <DrawerDescription>Set your preference</DrawerDescription>
+            </DrawerHeader>
+          </DrawerContent>
+        </Drawer>
+      </div>
+
+      <Button
+        className='ml-auto'
+        variant={'destructive'}
+        onClick={onResetFilter}
+      >
+        <RotateCcw /> Reset filters
+      </Button>
+    </div>
+  );
+};
+
+export default Actions;

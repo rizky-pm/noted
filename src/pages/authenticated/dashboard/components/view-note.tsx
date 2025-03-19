@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import useNoteService from '@/services/note';
+import { useDeleteNote, useEditNote } from '@/services/note';
 import { RootState } from '@/store';
 import { INote } from '@/type';
 import { useQueryClient } from '@tanstack/react-query';
@@ -40,13 +40,16 @@ import { Clock } from 'lucide-react';
 import { formatTimeAgo } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { DialogDescription } from '@radix-ui/react-dialog';
+import moment from 'moment';
 
 const ViewNote = (note: INote) => {
   const [isEditMode, setIsEditMode] = useState(false);
 
   const tags = useSelector((state: RootState) => state.dashboard.tags);
   const query = useQueryClient();
-  const { deleteNote, editNote } = useNoteService();
+  const deleteNote = useDeleteNote();
+  const editNote = useEditNote();
   const timestamp = note.updatedAt ? note.updatedAt : note.createdAt;
   const form = useForm<z.infer<typeof createNewNoteSchema>>({
     resolver: zodResolver(createNewNoteSchema),
@@ -104,7 +107,14 @@ const ViewNote = (note: INote) => {
   };
 
   return (
-    <Dialog key={note._id}>
+    <Dialog
+      key={note._id}
+      onOpenChange={(current) => {
+        if (!current) {
+          setIsEditMode(false);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <div>
           <NoteCard data={note} key={note._id} />
@@ -115,6 +125,9 @@ const ViewNote = (note: INote) => {
           <>
             <DialogHeader>
               <DialogTitle>Edit note</DialogTitle>
+              <DialogDescription className='text-muted-foreground text-sm'>
+                {moment.unix(timestamp).format('ddd, DD MMMM YYYY')}
+              </DialogDescription>
             </DialogHeader>
             <Form {...form}>
               <form
@@ -218,6 +231,9 @@ const ViewNote = (note: INote) => {
           <>
             <DialogHeader>
               <DialogTitle>{note.title}</DialogTitle>
+              <DialogDescription className='text-muted-foreground text-sm'>
+                {moment.unix(timestamp).format('ddd, DD MMMM YYYY')}
+              </DialogDescription>
               <div>
                 <Badge>{note.tag.label}</Badge>
               </div>

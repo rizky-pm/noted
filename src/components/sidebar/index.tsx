@@ -1,14 +1,30 @@
 import { TypographyH2 } from '../ui/typography';
-import { NavLink } from 'react-router-dom';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
-import { SIDEBAR_MENU } from '@/constant';
-import { Button } from '../ui/button';
 import useAuthenticationQuery from '@/services/authentication';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { signOut } from '@/store/auth/auth.slice';
+import { RootState } from '@/store';
+import { getInitialName } from '@/lib/utils';
+import CreateNewNoteDialog from '@/pages/authenticated/dashboard/components/create-new-note-dialog';
 
 const Sidebar = () => {
   const dispatch = useDispatch();
+  const currentUser = useSelector((state: RootState) => state.auth.user);
   const { signOutUser } = useAuthenticationQuery();
 
   const onClickSignOut = async () => {
@@ -20,32 +36,65 @@ const Sidebar = () => {
   };
 
   return (
-    <nav className='sticky top-0 p-4 bg-primary text-primary-foreground w-1/6 h-screen'>
-      <TypographyH2>Noted!</TypographyH2>
-      <ul className='flex flex-col gap-2 mt-4 h-[calc(100%-(3.75rem))]'>
-        {SIDEBAR_MENU.map((menu) => (
-          <li key={menu.id}>
-            <NavLink
-              to={menu.path}
-              className={({ isActive }) =>
-                isActive ? 'navlink--active' : 'navlink'
-              }
-            >
-              {menu.label}
-            </NavLink>
-          </li>
-        ))}
-        <li className='mt-auto'>
-          <Button
-            variant={'destructive'}
-            onClick={onClickSignOut}
-            className='w-full'
-            size={'sm'}
-          >
-            Sign out
-          </Button>
-        </li>
-      </ul>
+    <nav className='px-4 py-6 flex justify-between items-center'>
+      <TypographyH2>noted!</TypographyH2>
+
+      <div className='flex gap-4 items-center'>
+        <CreateNewNoteDialog />
+
+        {currentUser ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className='w-9 h-9 '>
+                <AvatarImage
+                  src='https://github.com/shadcsn.png'
+                  alt='@shadcn'
+                />
+                <AvatarFallback className='border-2'>
+                  {getInitialName(currentUser.username)}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className='w-56'>
+              <DropdownMenuLabel>{currentUser.email}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Billing</DropdownMenuItem>
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem>Keyboard shortcuts</DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem>Team</DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem>Email</DropdownMenuItem>
+                      <DropdownMenuItem>Message</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>More...</DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+                <DropdownMenuItem>
+                  New Team
+                  <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>GitHub</DropdownMenuItem>
+              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem disabled>API</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onClickSignOut}>
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : null}
+      </div>
     </nav>
   );
 };

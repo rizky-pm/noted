@@ -7,7 +7,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 const UnauthenticatedRoot = () => {
   const { checkUser } = useAuthenticationQuery();
   const { refetch, isPending } = checkUser;
-  const { user } = useSelector((state: RootState) => state.auth);
+  const user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
     refetch();

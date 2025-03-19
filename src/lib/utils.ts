@@ -12,13 +12,15 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const getInitialName = (fullName: string) => {
+  if (!fullName) return '';
+
   const words = _.split(fullName, ' ').filter(Boolean);
   const initials =
     words.length >= 2
       ? words[0].charAt(0) + words[words.length - 1].charAt(0)
       : words[0].charAt(0);
 
-  return initials;
+  return _.upperCase(initials);
 };
 
 export const formatTimeAgo = (unix: number) => {

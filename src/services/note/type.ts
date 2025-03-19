@@ -8,3 +8,7 @@ export interface IGetAllNoteResponse extends BaseResponse {
     notes: INote[];
   };
 }
+
+export interface INoteServieFilters {
+  title?: string | null;
+}

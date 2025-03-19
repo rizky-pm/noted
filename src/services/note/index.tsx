@@ -1,21 +1,25 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axiosRequest from '..';
-import { IGetAllNoteResponse } from './type';
+import { IGetAllNoteResponse, INoteServieFilters } from './type';
 import { INewNote } from '@/type';
 
-const useNoteService = () => {
-  const getAllNotes = useQuery({
-    queryKey: ['note.get-all'],
+export const useGetAllNotes = (filter: INoteServieFilters) => {
+  return useQuery({
+    queryKey: ['note.get-all', filter],
     queryFn: async () => {
+      console.log('Fetching with filters:', filter);
       const response = await axiosRequest.get<IGetAllNoteResponse>('/notes', {
+        params: filter,
         withCredentials: true,
       });
 
       return response.data.data;
     },
   });
+};
 
-  const createNewNote = useMutation({
+export const useCreateNote = () => {
+  return useMutation({
     mutationKey: ['note.create-new'],
     mutationFn: async (note: INewNote) => {
       const response = await axiosRequest.post('/notes/create-new-note', note, {
@@ -25,8 +29,10 @@ const useNoteService = () => {
       return response.data;
     },
   });
+};
 
-  const deleteNote = useMutation({
+export const useDeleteNote = () => {
+  return useMutation({
     mutationKey: ['note.delete'],
     mutationFn: async (noteId: string) => {
       const response = await axiosRequest.delete(`/notes/${noteId}`, {
@@ -36,8 +42,10 @@ const useNoteService = () => {
       return response;
     },
   });
+};
 
-  const editNote = useMutation({
+export const useEditNote = () => {
+  return useMutation({
     mutationKey: ['note.update'],
     mutationFn: async (payload: {
       noteId: string;
@@ -48,19 +56,11 @@ const useNoteService = () => {
       const { content, noteId, tag, title } = payload;
       const response = await axiosRequest.put(
         `/notes/${noteId}`,
-        {
-          title,
-          tag,
-          content,
-        },
+        { title, tag, content },
         { withCredentials: true }
       );
 
       return response;
     },
   });
-
-  return { getAllNotes, createNewNote, deleteNote, editNote };
 };
-
-export default useNoteService;

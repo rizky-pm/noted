@@ -29,16 +29,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { createNewNoteSchema } from '@/schema';
-import useNoteService from '@/services/note';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { DialogClose } from '@radix-ui/react-dialog';
 import { useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import { useCreateNote } from '@/services/note';
 
 const CreateNewNoteDialog = () => {
-  const { createNewNote } = useNoteService();
+  const createNewNote = useCreateNote();
   const query = useQueryClient();
   const tags = useSelector((state: RootState) => state.dashboard.tags);
   const closeDialogRef = useRef<HTMLDivElement | null>(null);

@@ -12,11 +12,13 @@ const AuthenticatedRoot = () => {
   if (isLoading) return <div>Loading...</div>;
 
   return user ? (
-    <main className='flex'>
-      <Sidebar />{' '}
-      <section className='w-5/6'>
-        <Outlet />
-      </section>
+    <main className='flex flex-col items-center'>
+      <div className='max-w-screen-lg w-full'>
+        <Sidebar />
+        <section>
+          <Outlet />
+        </section>
+      </div>
     </main>
   ) : (
     <Navigate to='/auth/sign-in' replace />
