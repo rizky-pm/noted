@@ -41,12 +41,10 @@ const FilterDrawer = () => {
   };
 
   useEffect(() => {
-    if (filterState.tag.length) {
-      setFilter((prevState) => ({
-        ...prevState,
-        tag: filterState.tag,
-      }));
-    }
+    setFilter((prevState) => ({
+      ...prevState,
+      tag: filterState.tag,
+    }));
   }, [filterState]);
 
   return (
