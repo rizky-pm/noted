@@ -40,7 +40,7 @@ import { useCreateNote } from '@/services/note';
 const CreateNewNoteDialog = () => {
   const createNewNote = useCreateNote();
   const query = useQueryClient();
-  const tags = useSelector((state: RootState) => state.dashboard.tags);
+  const tags = useSelector((state: RootState) => state.tag);
   const closeDialogRef = useRef<HTMLDivElement | null>(null);
 
   const form = useForm<z.infer<typeof createNewNoteSchema>>({

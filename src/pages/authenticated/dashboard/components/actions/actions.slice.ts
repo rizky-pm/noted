@@ -1,23 +1,24 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-export interface IFilters {
+export interface IFilter {
   title: string | null;
+  tag: string[];
 }
 
-const initialState: IFilters = {
+const initialState: IFilter = {
   title: null,
+  tag: [],
 };
 
-export const filtersSlice = createSlice({
-  name: 'filters',
+export const filterSlice = createSlice({
+  name: 'filter',
   initialState,
   reducers: {
-    applyFilters: (state, action) => {
-      console.log(action);
+    applyFilter: (state, action) => {
       Object.assign(state, action.payload);
     },
   },
 });
 
-export const { applyFilters } = filtersSlice.actions;
-export default filtersSlice.reducer;
+export const { applyFilter } = filterSlice.actions;
+export default filterSlice.reducer;

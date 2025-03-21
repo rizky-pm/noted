@@ -3,12 +3,12 @@ import ViewNote from './components/view-note';
 import useTagService from '@/services/tag';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { storeTagData } from './state';
+import { storeTagData } from '@/store/tag/tag.slice';
 import Actions from './components/actions';
 import { RootState } from '@/store';
 
 const DashboardPage = () => {
-  const filters = useSelector((state: RootState) => state.filters);
+  const filters = useSelector((state: RootState) => state.filter);
   const getAllNotes = useGetAllNotes(filters);
   const { getAllTags } = useTagService();
   const dispatch = useDispatch();

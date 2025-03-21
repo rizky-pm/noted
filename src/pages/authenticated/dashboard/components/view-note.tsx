@@ -46,7 +46,7 @@ import moment from 'moment';
 const ViewNote = (note: INote) => {
   const [isEditMode, setIsEditMode] = useState(false);
 
-  const tags = useSelector((state: RootState) => state.dashboard.tags);
+  const tags = useSelector((state: RootState) => state.tag);
   const query = useQueryClient();
   const deleteNote = useDeleteNote();
   const editNote = useEditNote();

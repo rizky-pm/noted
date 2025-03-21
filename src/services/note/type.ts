@@ -11,4 +11,5 @@ export interface IGetAllNoteResponse extends BaseResponse {
 
 export interface INoteServieFilters {
   title?: string | null;
+  tag?: string[];
 }

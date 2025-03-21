@@ -1,24 +1,19 @@
 import { Button } from '@/components/ui/button';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
-import { RotateCcw, Search, Settings } from 'lucide-react';
+import { RotateCcw, Search } from 'lucide-react';
 import { searchSchema, TypeSearchSchema } from './schema';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { useDispatch, useSelector } from 'react-redux';
-import { applyFilters } from './actions.slice';
+import { applyFilter } from './actions.slice';
 import { RootState } from '@/store';
 
+import SortDrawer from '../sort-drawer';
+import FilterDrawer from '../filter-drawer';
+
 const Actions = () => {
-  const filters = useSelector((state: RootState) => state.filters);
+  const filter = useSelector((state: RootState) => state.filter);
   const dispatch = useDispatch();
 
   const form = useForm<TypeSearchSchema>({
@@ -29,15 +24,13 @@ const Actions = () => {
   });
 
   const onSearch = (values: TypeSearchSchema) => {
-    dispatch(applyFilters({ ...filters, title: values.searchTerm }));
+    dispatch(applyFilter({ ...filter, title: values.searchTerm }));
   };
 
   const onResetFilter = () => {
     form.reset();
-    dispatch(applyFilters({ title: null }));
+    dispatch(applyFilter({ title: null, tag: [] }));
   };
-
-  console.log({ filters });
 
   return (
     <div className='flex gap-2'>
@@ -63,21 +56,8 @@ const Actions = () => {
         </form>
       </Form>
 
-      <div className='self-start'>
-        <Drawer>
-          <DrawerTrigger asChild>
-            <Button variant={'outline'} size={'icon'}>
-              <Settings />
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>Sort by</DrawerTitle>
-              <DrawerDescription>Set your preference</DrawerDescription>
-            </DrawerHeader>
-          </DrawerContent>
-        </Drawer>
-      </div>
+      <SortDrawer />
+      <FilterDrawer />
 
       <Button
         className='ml-auto'

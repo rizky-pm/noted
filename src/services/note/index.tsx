@@ -8,10 +8,11 @@ export const useGetAllNotes = (filter: INoteServieFilters) => {
     queryKey: ['note.get-all', filter],
     queryFn: async () => {
       console.log('Fetching with filters:', filter);
-      const response = await axiosRequest.get<IGetAllNoteResponse>('/notes', {
-        params: filter,
-        withCredentials: true,
-      });
+      const response = await axiosRequest.post<IGetAllNoteResponse>(
+        '/notes',
+        filter,
+        { withCredentials: true }
+      );
 
       return response.data.data;
     },

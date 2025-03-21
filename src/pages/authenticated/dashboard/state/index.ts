@@ -1,5 +1,4 @@
 import { INewNote } from '@/type';
-import { ITag } from '@/types/tag.type';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface IDashboardState {
@@ -11,7 +10,6 @@ export interface IDashboardState {
       content: string;
     } | null;
   };
-  tags: ITag[];
 }
 
 const initialState: IDashboardState = {
@@ -19,7 +17,6 @@ const initialState: IDashboardState = {
     isEdit: false,
     selectedNote: null,
   },
-  tags: [],
 };
 
 export const dashboardSlice = createSlice({
@@ -35,11 +32,8 @@ export const dashboardSlice = createSlice({
         state.note.selectedNote = action.payload ? action.payload : null;
       }
     },
-    storeTagData: (state, action: PayloadAction<ITag[]>) => {
-      state.tags = action.payload;
-    },
   },
 });
 
-export const { toggleEditMode, storeTagData } = dashboardSlice.actions;
+export const { toggleEditMode } = dashboardSlice.actions;
 export default dashboardSlice.reducer;
