@@ -3,15 +3,20 @@ import useAuthenticationQuery from '@/services/authentication';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import Sidebar from '@/components/sidebar';
+import { useEffect } from 'react';
 
 const AuthenticatedRoot = () => {
   const { checkUser } = useAuthenticationQuery();
-  const { isLoading } = checkUser;
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { refetch, isPending } = checkUser;
+  const currentUser = useSelector((state: RootState) => state.auth.user);
 
-  if (isLoading) return <div>Loading...</div>;
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
-  return user ? (
+  if (isPending) return <div>Loading...</div>;
+
+  return currentUser ? (
     <main className='flex flex-col items-center'>
       <div className='max-w-screen-lg w-full'>
         <Sidebar />
