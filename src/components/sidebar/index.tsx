@@ -20,7 +20,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { signOut } from '@/store/auth/auth.slice';
 import { RootState } from '@/store';
 import { getInitialName } from '@/lib/utils';
-import CreateNewNoteDialog from '@/pages/authenticated/dashboard/components/create-new-note-dialog';
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -40,59 +39,62 @@ const Sidebar = () => {
       <TypographyH2>noted!</TypographyH2>
 
       <div className='flex gap-4 items-center'>
-        <CreateNewNoteDialog />
-
         {currentUser ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Avatar className='w-9 h-9 '>
-                <AvatarImage
-                  src='https://github.com/shadcsn.png'
-                  alt='@shadcn'
-                />
-                <AvatarFallback className='border-2'>
-                  {getInitialName(currentUser.username)}
-                </AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className='w-56'>
-              <DropdownMenuLabel>{currentUser.email}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Billing</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Keyboard shortcuts</DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem>Team</DropdownMenuItem>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
-                  <DropdownMenuPortal>
-                    <DropdownMenuSubContent>
-                      <DropdownMenuItem>Email</DropdownMenuItem>
-                      <DropdownMenuItem>Message</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>More...</DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuPortal>
-                </DropdownMenuSub>
-                <DropdownMenuItem>
-                  New Team
-                  <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+          <>
+            <span>Hi, {currentUser.username}</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className='w-9 h-9 cursor-pointer'>
+                  <AvatarImage
+                    src='https://github.com/shadcsn.png'
+                    alt='@shadcn'
+                  />
+                  <AvatarFallback className='border-2'>
+                    {getInitialName(currentUser.username)}
+                  </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className='w-56'>
+                <DropdownMenuLabel>{currentUser.email}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Billing</DropdownMenuItem>
+                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuItem>Keyboard shortcuts</DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>Team</DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      Invite users
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem>Email</DropdownMenuItem>
+                        <DropdownMenuItem>Message</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>More...</DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                  <DropdownMenuItem>
+                    New Team
+                    <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>GitHub</DropdownMenuItem>
+                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuItem disabled>API</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onClickSignOut}>
+                  Log out
                 </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>GitHub</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuItem disabled>API</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={onClickSignOut}>
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
         ) : null}
       </div>
     </nav>

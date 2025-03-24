@@ -1,19 +1,128 @@
 import { useGetAllNotes } from '@/services/note';
-import ViewNote from './components/view-note';
 import useTagService from '@/services/tag';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { storeTagData } from '@/store/tag/tag.slice';
 import Actions from './components/actions';
 import { RootState } from '@/store';
 
+import {
+  DndContext,
+  DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { INote } from '@/type';
+import DraggableNote from './components/draggable-note';
+import { setNotePosition } from './state';
+
 const DashboardPage = () => {
+  const [notes, setNotes] = useState<INote[]>([]);
   const filters = useSelector((state: RootState) => state.filter);
-  const getAllNotes = useGetAllNotes(filters);
+  const noteCardRef = useRef<HTMLDivElement | null>(null);
+  const notePosition = useSelector(
+    (state: RootState) => state.dashboard.note.position
+  );
+
   const { getAllTags } = useTagService();
-  const dispatch = useDispatch();
-  const { data: notesData, isLoading: getNotesIsLoading } = getAllNotes;
+  const getAllNotes = useGetAllNotes(filters);
+  const { data: notesData, isLoading } = getAllNotes;
   const { data: tagData, isFetched } = getAllTags;
+
+  const dispatch = useDispatch();
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: {
+        x: 10,
+        y: 10,
+      },
+    },
+  });
+  const sensors = useSensors(pointerSensor);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, delta } = event;
+
+    const newNotesPosition = notes.map((note) =>
+      note._id === active.id
+        ? {
+            ...note,
+            position: {
+              x: note.position.x + delta.x,
+              y: note.position.y + delta.y,
+            },
+          }
+        : note
+    );
+
+    const filteredNotes = newNotesPosition.map(({ _id, position }) => ({
+      _id,
+      position,
+    }));
+    localStorage.setItem('notesPositions', JSON.stringify(filteredNotes));
+    setNotes(newNotesPosition);
+  };
+
+  const getStoredNotesPositions = useCallback(() => {
+    const storedData = localStorage.getItem('notesPositions');
+    return storedData ? JSON.parse(storedData) : [];
+  }, []);
+
+  useEffect(() => {
+    if (notesData?.notes) {
+      const savedNotes = getStoredNotesPositions();
+
+      const initialPositions = notesData.notes.map((note, index) => {
+        const savedNote = savedNotes.find(
+          (saved: {
+            _id: string;
+            position: {
+              x: number;
+              y: number;
+            };
+          }) => saved._id === note._id
+        );
+
+        const position = savedNote
+          ? savedNote.position
+          : {
+              x: notePosition.x
+                ? notePosition.x / 2 - 80 + 50 * index
+                : 50 * index,
+              y: notePosition.y
+                ? notePosition.y / 2 - 240 + 50 * index
+                : 50 * index,
+            };
+
+        return {
+          ...note,
+          position,
+        };
+      });
+
+      const filteredNotes = initialPositions.map(({ _id, position }) => ({
+        _id,
+        position,
+      }));
+      localStorage.setItem('notesPositions', JSON.stringify(filteredNotes));
+      setNotes(initialPositions);
+    }
+  }, [notesData, notePosition, getStoredNotesPositions]);
+
+  useEffect(() => {
+    if (noteCardRef) {
+      const notePositionX = noteCardRef.current?.getBoundingClientRect().width;
+      const notePositionY = noteCardRef.current?.getBoundingClientRect().height;
+      dispatch(
+        setNotePosition({
+          x: notePositionX,
+          y: notePositionY,
+        })
+      );
+    }
+  }, [noteCardRef, dispatch]);
 
   useEffect(() => {
     if (isFetched && tagData) {
@@ -22,29 +131,36 @@ const DashboardPage = () => {
   }, [isFetched, tagData, dispatch]);
 
   return (
-    <section className='flex flex-col gap-2 p-4'>
+    <section className='w-full h-[calc(100vh-6rem)] p-4'>
       <Actions />
-      <div
-        className={`w-full flex flex-wrap gap-4 justify-center ${
-          notesData?.notes.length ? '' : ' h-[calc(100vh-6rem)]'
-        }`}
-      >
-        {getNotesIsLoading ? (
-          <div>
-            <h1>Loading data ...</h1>
-          </div>
-        ) : notesData?.notes.length ? (
-          notesData?.notes.map((note) => {
-            return <ViewNote {...note} key={note._id} />;
-          })
-        ) : (
-          <div className='flex justify-center items-center w-full h-full'>
-            <p className='text-muted-foreground text-sm'>
-              You don't have any note, try add one.
-            </p>
-          </div>
-        )}
-      </div>
+
+      {noteCardRef ? (
+        <div className='relative h-[calc(100%-16px)]' ref={noteCardRef}>
+          <DndContext
+            onDragEnd={handleDragEnd}
+            modifiers={[restrictToWindowEdges]}
+            sensors={sensors}
+          >
+            {isLoading ? (
+              <h1>Loading data...</h1>
+            ) : notes.length ? (
+              notes.map((note) => (
+                <DraggableNote
+                  key={note._id}
+                  note={note}
+                  position={note.position}
+                />
+              ))
+            ) : (
+              <div className='flex justify-center items-center w-full h-full'>
+                <p className='text-muted-foreground text-sm'>
+                  You don&apos;t have any notes. Try adding one!
+                </p>
+              </div>
+            )}
+          </DndContext>
+        </div>
+      ) : null}
     </section>
   );
 };

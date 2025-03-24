@@ -35,4 +35,8 @@ export interface INote {
   ownerId: string;
   createdAt: number;
   updatedAt: number;
+  position: {
+    x: number;
+    y: number;
+  };
 }

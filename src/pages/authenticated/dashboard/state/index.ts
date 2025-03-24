@@ -9,6 +9,11 @@ export interface IDashboardState {
       tag: string;
       content: string;
     } | null;
+    position: {
+      x: number;
+      y: number;
+    };
+    isOpen: boolean;
   };
 }
 
@@ -16,6 +21,11 @@ const initialState: IDashboardState = {
   note: {
     isEdit: false,
     selectedNote: null,
+    position: {
+      x: 0,
+      y: 0,
+    },
+    isOpen: false,
   },
 };
 
@@ -24,7 +34,6 @@ export const dashboardSlice = createSlice({
   initialState,
   reducers: {
     toggleEditMode: (state, action: PayloadAction<INewNote | undefined>) => {
-      console.log(action);
       state.note.isEdit = !state.note.isEdit;
       if (!state.note.isEdit) {
         state.note.selectedNote = null;
@@ -32,8 +41,15 @@ export const dashboardSlice = createSlice({
         state.note.selectedNote = action.payload ? action.payload : null;
       }
     },
+    setNotePosition: (state, action) => {
+      state.note.position = action.payload;
+    },
+    toggleOpenNoteDialog: (state) => {
+      state.note.isOpen = !state.note.isOpen;
+    },
   },
 });
 
-export const { toggleEditMode } = dashboardSlice.actions;
+export const { toggleEditMode, setNotePosition, toggleOpenNoteDialog } =
+  dashboardSlice.actions;
 export default dashboardSlice.reducer;

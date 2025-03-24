@@ -11,6 +11,7 @@ import { RootState } from '@/store';
 
 import SortDrawer from '../sort-drawer';
 import FilterDrawer from '../filter-drawer';
+import CreateNewNoteDialog from '../create-new-note-dialog';
 
 const Actions = () => {
   const filter = useSelector((state: RootState) => state.filter);
@@ -59,13 +60,13 @@ const Actions = () => {
       <SortDrawer />
       <FilterDrawer />
 
-      <Button
-        className='ml-auto'
-        variant={'destructive'}
-        onClick={onResetFilter}
-      >
+      <Button variant={'destructive'} onClick={onResetFilter}>
         <RotateCcw /> Reset filters
       </Button>
+
+      <div className='ml-auto'>
+        <CreateNewNoteDialog />
+      </div>
     </div>
   );
 };
