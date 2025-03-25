@@ -7,7 +7,6 @@ export const useGetAllNotes = (filter: INoteServieFilters) => {
   return useQuery({
     queryKey: ['note.get-all', filter],
     queryFn: async () => {
-      console.log('Fetching with filters:', filter);
       const response = await axiosRequest.post<IGetAllNoteResponse>(
         '/notes',
         filter,

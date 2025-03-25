@@ -31,10 +31,8 @@ const SignUpForm = () => {
   });
 
   const onClickSignUp = async (credentials: TypeSignUpSchema) => {
-    console.log(credentials);
     signUpUser.mutateAsync(credentials, {
       onSuccess: (data) => {
-        console.log(data.message);
         toast.success(
           `${data.message}, you'll be redirected to sign in page in a moment.`,
           {

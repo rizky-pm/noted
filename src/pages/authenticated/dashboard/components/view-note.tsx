@@ -10,7 +10,7 @@ import { useDeleteNote, useEditNote } from '@/services/note';
 import { RootState } from '@/store';
 import { INote } from '@/type';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import NoteCard from '@/components/note-card';
 import { useForm } from 'react-hook-form';
@@ -117,23 +117,27 @@ const ViewNote = (note: INote) => {
     });
   };
 
+  useEffect(() => {
+    if (!isDialogOpen) {
+      setTimeout(() => {
+        setIsEditMode(false);
+      }, 500);
+    }
+  }, [isDialogOpen]);
+
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      onClick={() => {
-        setIsDialogOpen(true);
-      }}
-    >
-      <NoteCard data={note} key={note._id} />
-      <Dialog
-        open={isDialogOpen}
-        onOpenChange={(current) => {
-          if (!current) {
-            setIsEditMode(false);
-          }
+    <>
+      <div
+        ref={setNodeRef}
+        style={style}
+        onClick={() => {
+          setIsDialogOpen(true);
         }}
       >
+        <NoteCard data={note} key={note._id} />
+      </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className='max-w-[37.5rem]'>
           {isEditMode ? (
             <>
@@ -296,7 +300,7 @@ const ViewNote = (note: INote) => {
           </DialogClose>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 
