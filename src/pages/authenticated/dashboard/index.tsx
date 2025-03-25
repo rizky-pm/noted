@@ -45,24 +45,35 @@ const DashboardPage = () => {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, delta } = event;
 
-    const newNotesPosition = notes.map((note) =>
-      note._id === active.id
-        ? {
-            ...note,
-            position: {
-              x: note.position.x + delta.x,
-              y: note.position.y + delta.y,
-            },
-          }
-        : note
-    );
+    setNotes((prevNotes) => {
+      const updatedNotes = prevNotes.map((note) =>
+        note._id === active.id
+          ? {
+              ...note,
+              position: {
+                x: note.position.x + delta.x,
+                y: note.position.y + delta.y,
+              },
+            }
+          : note
+      );
 
-    const filteredNotes = newNotesPosition.map(({ _id, position }) => ({
-      _id,
-      position,
-    }));
-    localStorage.setItem('notesPositions', JSON.stringify(filteredNotes));
-    setNotes(newNotesPosition);
+      const draggedNoteIndex = updatedNotes.findIndex(
+        (note) => note._id === active.id
+      );
+      if (draggedNoteIndex === -1) return prevNotes;
+
+      const draggedNote = updatedNotes.splice(draggedNoteIndex, 1)[0];
+      updatedNotes.push(draggedNote);
+
+      const filteredNotes = updatedNotes.map(({ _id, position }) => ({
+        _id,
+        position,
+      }));
+      localStorage.setItem('notesPositions', JSON.stringify(filteredNotes));
+
+      return updatedNotes;
+    });
   };
 
   const getStoredNotesPositions = useCallback(() => {
@@ -74,7 +85,7 @@ const DashboardPage = () => {
     if (notesData?.notes) {
       const savedNotes = getStoredNotesPositions();
 
-      const initialPositions = notesData.notes.map((note, index) => {
+      const initialPositions = notesData.notes.map((note) => {
         const savedNote = savedNotes.find(
           (saved: {
             _id: string;
@@ -88,12 +99,8 @@ const DashboardPage = () => {
         const position = savedNote
           ? savedNote.position
           : {
-              x: notePosition.x
-                ? notePosition.x / 2 - 80 + 50 * index
-                : 50 * index,
-              y: notePosition.y
-                ? notePosition.y / 2 - 240 + 50 * index
-                : 50 * index,
+              x: notePosition.x ? notePosition.x / 2 - 80 : 50,
+              y: notePosition.y ? notePosition.y / 2 - 240 : 50,
             };
 
         return {
