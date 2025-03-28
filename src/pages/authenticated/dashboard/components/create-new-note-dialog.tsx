@@ -42,6 +42,9 @@ const CreateNewNoteDialog = () => {
   const query = useQueryClient();
   const tags = useSelector((state: RootState) => state.tag);
   const closeDialogRef = useRef<HTMLDivElement | null>(null);
+  const notePosition = useSelector(
+    (state: RootState) => state.dashboard.note.position
+  );
 
   const form = useForm<z.infer<typeof createNewNoteSchema>>({
     resolver: zodResolver(createNewNoteSchema),
@@ -55,6 +58,10 @@ const CreateNewNoteDialog = () => {
   const onSubmitNewNote = (values: z.infer<typeof createNewNoteSchema>) => {
     const payload = {
       ...values,
+      position: {
+        x: notePosition.x,
+        y: notePosition.y,
+      },
     };
 
     createNewNote.mutateAsync(payload, {
@@ -67,7 +74,7 @@ const CreateNewNoteDialog = () => {
         }
       },
       onError: (error) => {
-        console.log(error);
+        console.error(error);
       },
     });
   };

@@ -1,4 +1,4 @@
-import { useGetAllNotes } from '@/services/note';
+import { useGetAllNotes, useUpdateNotePosition } from '@/services/note';
 import useTagService from '@/services/tag';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,6 +17,7 @@ import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { INote } from '@/type';
 import DraggableNote from './components/draggable-note';
 import { setNotePosition } from './state';
+import _ from 'lodash';
 
 const DashboardPage = () => {
   const [notes, setNotes] = useState<INote[]>([]);
@@ -28,6 +29,7 @@ const DashboardPage = () => {
 
   const { getAllTags } = useTagService();
   const getAllNotes = useGetAllNotes(filters);
+  const updateNotePosition = useUpdateNotePosition();
   const { data: notesData, isLoading } = getAllNotes;
   const { data: tagData, isFetched } = getAllTags;
 
@@ -71,6 +73,14 @@ const DashboardPage = () => {
         position,
       }));
       localStorage.setItem('notesPositions', JSON.stringify(filteredNotes));
+
+      const payload = {
+        noteId: _.toString(active.id),
+        x: delta.x,
+        y: delta.y,
+      };
+
+      updateNotePosition.mutateAsync(payload);
 
       return updatedNotes;
     });

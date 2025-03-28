@@ -23,6 +23,7 @@ const DraggableNote = (props: IDraggableNoteProps) => {
     left: transform ? _.toString(position.x + transform.x) : position.x,
     top: transform ? _.toString(position.y + transform.y) : position.y,
     transition: transform ? 'none' : 'transform 0.2s ease',
+    cursor: 'grab',
   };
 
   return (

@@ -1,7 +1,7 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axiosRequest from '..';
 import { IGetAllNoteResponse, INoteServieFilters } from './type';
-import { INewNote } from '@/type';
+import { INewNote, INote } from '@/type';
 
 export const useGetAllNotes = (filter: INoteServieFilters) => {
   return useQuery({
@@ -61,6 +61,46 @@ export const useEditNote = () => {
       );
 
       return response;
+    },
+  });
+};
+
+export const useUpdateNotePosition = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ['note.update-position'],
+    mutationFn: async (payload: { x: number; y: number; noteId: string }) => {
+      const { x, y, noteId } = payload;
+      const response = await axiosRequest.patch(
+        `/notes/update-position/${noteId}`,
+        { x, y },
+        { withCredentials: true }
+      );
+      return response.data;
+    },
+    onMutate: async (newPosition) => {
+      await queryClient.cancelQueries({ queryKey: ['note.get-all'] });
+
+      const previousNotes = queryClient.getQueryData(['note.get-all']);
+
+      queryClient.setQueryData(['note.get-all'], (oldNotes: INote[]) => {
+        return oldNotes?.map((note: INote) =>
+          note._id === newPosition.noteId
+            ? { ...note, position: { x: newPosition.x, y: newPosition.y } }
+            : note
+        );
+      });
+
+      return { previousNotes };
+    },
+    onError: (_error, _newPosition, context) => {
+      if (context?.previousNotes) {
+        queryClient.setQueryData(['note.get-all'], context.previousNotes);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['note.get-all'] });
     },
   });
 };

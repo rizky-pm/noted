@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { applyFilter } from './actions.slice';
 import { RootState } from '@/store';
 
-import SortDrawer from '../sort-drawer';
 import FilterDrawer from '../filter-drawer';
 import CreateNewNoteDialog from '../create-new-note-dialog';
 
@@ -57,7 +56,6 @@ const Actions = () => {
         </form>
       </Form>
 
-      <SortDrawer />
       <FilterDrawer />
 
       <Button variant={'destructive'} onClick={onResetFilter}>
