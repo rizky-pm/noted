@@ -77,7 +77,7 @@ export const useUpdateNotePosition = () => {
         { x, y },
         { withCredentials: true }
       );
-      return response.data;
+      return response;
     },
     onMutate: async (newPosition) => {
       await queryClient.cancelQueries({ queryKey: ['note.get-all'] });

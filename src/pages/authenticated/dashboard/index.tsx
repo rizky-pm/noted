@@ -1,6 +1,6 @@
 import { useGetAllNotes, useUpdateNotePosition } from '@/services/note';
 import useTagService from '@/services/tag';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { storeTagData } from '@/store/tag/tag.slice';
 import Actions from './components/actions';
@@ -23,10 +23,6 @@ const DashboardPage = () => {
   const [notes, setNotes] = useState<INote[]>([]);
   const filters = useSelector((state: RootState) => state.filter);
   const noteCardRef = useRef<HTMLDivElement | null>(null);
-  const notePosition = useSelector(
-    (state: RootState) => state.dashboard.note.position
-  );
-
   const { getAllTags } = useTagService();
   const getAllNotes = useGetAllNotes(filters);
   const updateNotePosition = useUpdateNotePosition();
@@ -48,96 +44,51 @@ const DashboardPage = () => {
     const { active, delta } = event;
 
     setNotes((prevNotes) => {
-      const updatedNotes = prevNotes.map((note) =>
-        note._id === active.id
-          ? {
-              ...note,
-              position: {
-                x: note.position.x + delta.x,
-                y: note.position.y + delta.y,
-              },
-            }
-          : note
-      );
+      return prevNotes.map((note) => {
+        if (note._id !== active.id) return note;
 
-      const draggedNoteIndex = updatedNotes.findIndex(
-        (note) => note._id === active.id
-      );
-      if (draggedNoteIndex === -1) return prevNotes;
+        const payload = {
+          noteId: _.toString(active.id),
+          x: note.position.x + delta.x,
+          y: note.position.y + delta.y,
+        };
 
-      const draggedNote = updatedNotes.splice(draggedNoteIndex, 1)[0];
-      updatedNotes.push(draggedNote);
-
-      const filteredNotes = updatedNotes.map(({ _id, position }) => ({
-        _id,
-        position,
-      }));
-      localStorage.setItem('notesPositions', JSON.stringify(filteredNotes));
-
-      const payload = {
-        noteId: _.toString(active.id),
-        x: delta.x,
-        y: delta.y,
-      };
-
-      updateNotePosition.mutateAsync(payload);
-
-      return updatedNotes;
-    });
-  };
-
-  const getStoredNotesPositions = useCallback(() => {
-    const storedData = localStorage.getItem('notesPositions');
-    return storedData ? JSON.parse(storedData) : [];
-  }, []);
-
-  useEffect(() => {
-    if (notesData?.notes) {
-      const savedNotes = getStoredNotesPositions();
-
-      const initialPositions = notesData.notes.map((note) => {
-        const savedNote = savedNotes.find(
-          (saved: {
-            _id: string;
-            position: {
-              x: number;
-              y: number;
-            };
-          }) => saved._id === note._id
-        );
-
-        const position = savedNote
-          ? savedNote.position
-          : {
-              x: notePosition.x ? notePosition.x / 2 - 80 : 50,
-              y: notePosition.y ? notePosition.y / 2 - 240 : 50,
-            };
+        updateNotePosition.mutate(payload);
 
         return {
           ...note,
-          position,
+          position: {
+            x: note.position.x + delta.x,
+            y: note.position.y + delta.y,
+          },
         };
       });
+    });
+  };
 
-      const filteredNotes = initialPositions.map(({ _id, position }) => ({
-        _id,
-        position,
+  useEffect(() => {
+    if (notesData?.notes) {
+      const initialPositions = notesData.notes.map((note) => ({
+        ...note,
       }));
-      localStorage.setItem('notesPositions', JSON.stringify(filteredNotes));
+
       setNotes(initialPositions);
     }
-  }, [notesData, notePosition, getStoredNotesPositions]);
+  }, [notesData]);
 
   useEffect(() => {
     if (noteCardRef) {
       const notePositionX = noteCardRef.current?.getBoundingClientRect().width;
       const notePositionY = noteCardRef.current?.getBoundingClientRect().height;
-      dispatch(
-        setNotePosition({
-          x: notePositionX,
-          y: notePositionY,
-        })
-      );
+
+      if (notePositionX && notePositionY) {
+        dispatch(
+          setNotePosition({
+            x: notePositionX / 2 - 80,
+            y: notePositionY / 2 - 240,
+          })
+        );
+      }
     }
   }, [noteCardRef, dispatch]);
 
