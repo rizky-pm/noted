@@ -65,12 +65,11 @@ const DashboardPage = () => {
       });
     });
   };
-
   useEffect(() => {
     if (notesData?.notes) {
-      const initialPositions = notesData.notes.map((note) => ({
-        ...note,
-      }));
+      const initialPositions = [...notesData.notes];
+
+      initialPositions.sort((a, b) => (a.updatedAt || 0) - (b.updatedAt || 0));
 
       setNotes(initialPositions);
     }
