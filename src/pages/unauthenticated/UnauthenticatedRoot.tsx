@@ -1,3 +1,4 @@
+import LoadingScreen from '@/components/loading-screen';
 import useAuthenticationQuery from '@/services/authentication';
 import { RootState } from '@/store';
 import { useEffect } from 'react';
@@ -13,7 +14,7 @@ const UnauthenticatedRoot = () => {
     refetch();
   }, [refetch]);
 
-  if (isPending) return <div>Loading...</div>;
+  if (isPending) return <LoadingScreen />;
 
   return user ? (
     <Navigate to='/' replace />

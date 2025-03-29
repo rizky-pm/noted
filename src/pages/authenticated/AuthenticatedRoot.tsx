@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import Sidebar from '@/components/sidebar';
 import { useEffect } from 'react';
+import LoadingScreen from '@/components/loading-screen';
 
 const AuthenticatedRoot = () => {
   const { checkUser } = useAuthenticationQuery();
@@ -14,7 +15,7 @@ const AuthenticatedRoot = () => {
     refetch();
   }, [refetch]);
 
-  if (isPending) return <div>Loading...</div>;
+  if (isPending) return <LoadingScreen />;
 
   return currentUser ? (
     <main className='flex flex-col items-center'>
