@@ -1,5 +1,4 @@
 import { useGetAllNotes, useUpdateNotePosition } from '@/services/note';
-import useTagService from '@/services/tag';
 import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { storeTagData } from '@/store/tag/tag.slice';
@@ -18,16 +17,16 @@ import { INote } from '@/type';
 import DraggableNote from './components/draggable-note';
 import { setNotePosition } from './state';
 import _ from 'lodash';
+import { useGetAllTag } from '@/services/tag';
 
 const DashboardPage = () => {
   const [notes, setNotes] = useState<INote[]>([]);
   const filters = useSelector((state: RootState) => state.filter);
   const noteCardRef = useRef<HTMLDivElement | null>(null);
-  const { getAllTags } = useTagService();
   const getAllNotes = useGetAllNotes(filters);
   const updateNotePosition = useUpdateNotePosition();
   const { data: notesData, isLoading } = getAllNotes;
-  const { data: tagData, isFetched } = getAllTags;
+  const { data: tagData, isFetched } = useGetAllTag();
 
   const dispatch = useDispatch();
   const pointerSensor = useSensor(PointerSensor, {

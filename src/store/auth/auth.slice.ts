@@ -5,6 +5,7 @@ export interface IAuthState {
     id: string;
     username: string;
     email: string;
+    avatar: string | null;
   } | null;
   isLoading: boolean;
 }

@@ -1,12 +1,20 @@
+import { TypographyH3 } from '@/components/ui/typography';
+import { RootState } from '@/store';
+import { useSelector } from 'react-redux';
+
+import TagsSetting from './components/tags-setting';
+import EditProfile from './components/edit-profile';
+import ChangePassword from './components/change-password';
+
 const ProfilePage = () => {
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+
   return (
-    <section>
-      <h1>Profile</h1>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam explicabo
-        nemo, natus quis earum ducimus labore sint sit aut fugiat accusamus
-        alias ab tenetur vitae! Illo iure repudiandae minima quaerat.
-      </p>
+    <section className='w-full p-4 flex flex-col gap-2'>
+      <TypographyH3>{currentUser?.email}</TypographyH3>
+      <EditProfile />
+      <ChangePassword />
+      <TagsSetting />
     </section>
   );
 };

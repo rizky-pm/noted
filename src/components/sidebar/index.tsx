@@ -6,12 +6,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -20,9 +15,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { signOut } from '@/store/auth/auth.slice';
 import { RootState } from '@/store';
 import { getInitialName } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const { signOutUser } = useAuthenticationQuery();
 
@@ -36,7 +33,14 @@ const Sidebar = () => {
 
   return (
     <nav className='px-4 py-6 flex justify-between items-center'>
-      <TypographyH2>noted!</TypographyH2>
+      <div
+        className='cursor-pointer'
+        onClick={() => {
+          navigate('/');
+        }}
+      >
+        <TypographyH2>noted!</TypographyH2>
+      </div>
 
       <div className='flex gap-4 items-center'>
         {currentUser ? (
@@ -50,46 +54,32 @@ const Sidebar = () => {
                     alt='@shadcn'
                   />
                   <AvatarFallback className='border-2'>
-                    {getInitialName(currentUser.username)}
+                    {currentUser.avatar
+                      ? currentUser.avatar
+                      : getInitialName(currentUser.username)}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent className='w-56'>
-                <DropdownMenuLabel>{currentUser.email}</DropdownMenuLabel>
+                <DropdownMenuLabel className='truncate block'>
+                  {currentUser.email}
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Billing</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
-                  <DropdownMenuItem>Keyboard shortcuts</DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>Team</DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      Invite users
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuItem>Email</DropdownMenuItem>
-                        <DropdownMenuItem>Message</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>More...</DropdownMenuItem>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                  <DropdownMenuItem>
-                    New Team
-                    <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+                  <DropdownMenuItem
+                    className='cursor-pointer'
+                    onClick={() => {
+                      navigate('profile');
+                    }}
+                  >
+                    Profile
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>GitHub</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
-                <DropdownMenuItem disabled>API</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onClickSignOut}>
+                <DropdownMenuItem
+                  onClick={onClickSignOut}
+                  className='cursor-pointer'
+                >
                   Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>

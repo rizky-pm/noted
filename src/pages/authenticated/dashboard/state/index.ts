@@ -15,6 +15,9 @@ export interface IDashboardState {
     };
     isOpen: boolean;
   };
+  newTag: {
+    isDialogOpen: boolean;
+  };
 }
 
 const initialState: IDashboardState = {
@@ -26,6 +29,9 @@ const initialState: IDashboardState = {
       y: 0,
     },
     isOpen: false,
+  },
+  newTag: {
+    isDialogOpen: false,
   },
 };
 
@@ -47,9 +53,16 @@ export const dashboardSlice = createSlice({
     toggleOpenNoteDialog: (state) => {
       state.note.isOpen = !state.note.isOpen;
     },
+    toggleNewTagDialog: (state) => {
+      state.newTag.isDialogOpen = !state.newTag.isDialogOpen;
+    },
   },
 });
 
-export const { toggleEditMode, setNotePosition, toggleOpenNoteDialog } =
-  dashboardSlice.actions;
+export const {
+  toggleEditMode,
+  setNotePosition,
+  toggleOpenNoteDialog,
+  toggleNewTagDialog,
+} = dashboardSlice.actions;
 export default dashboardSlice.reducer;

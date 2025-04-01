@@ -7,6 +7,7 @@ export interface ITag {
   label: string;
   updatedAt: string;
   _id: string;
+  deletable: boolean;
 }
 
 export interface IGetAllTagResponse extends BaseResponse {
