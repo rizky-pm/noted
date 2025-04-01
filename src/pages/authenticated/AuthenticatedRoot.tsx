@@ -5,6 +5,7 @@ import { RootState } from '@/store';
 import Sidebar from '@/components/sidebar';
 import { useEffect } from 'react';
 import LoadingScreen from '@/components/loading-screen';
+import Footer from '@/components/footer';
 
 const AuthenticatedRoot = () => {
   const { checkUser } = useAuthenticationQuery();
@@ -25,6 +26,7 @@ const AuthenticatedRoot = () => {
           <Outlet />
         </section>
       </div>
+      <Footer />
     </main>
   ) : (
     <Navigate to='/auth/sign-in' replace />
