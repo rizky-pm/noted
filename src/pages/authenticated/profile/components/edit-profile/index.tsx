@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { editProfileSchema, TypeEditProfileSchema } from './schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import {
   Form,
@@ -16,14 +16,22 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { fileToBase64, getInitialName } from '@/lib/utils';
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { TypographyH4 } from '@/components/ui/typography';
+import useAuthenticationQuery, {
+  useEditProfile,
+} from '@/services/authentication';
+import { toggleLoading } from '@/store/global/global.slice';
 
 const EditProfile = () => {
   const [avatarPreview, setAvatarPreview] = useState('');
+  const dispatch = useDispatch();
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const avatarRef = useRef<HTMLInputElement | null>(null);
+  const editProfile = useEditProfile();
+  const { checkUser } = useAuthenticationQuery();
+  const { refetch } = checkUser;
 
   const form = useForm<TypeEditProfileSchema>({
     resolver: zodResolver(editProfileSchema),
@@ -34,12 +42,16 @@ const EditProfile = () => {
   });
 
   const onClickEdit = async (values: TypeEditProfileSchema) => {
+    if (currentUser?.username === values.username && !values.avatar) {
+      return;
+    }
+
     let base64;
 
     if (values.avatar) {
       base64 = await fileToBase64(values.avatar);
     } else {
-      base64 = null;
+      base64 = currentUser?.avatar;
     }
 
     const payload = {
@@ -47,8 +59,38 @@ const EditProfile = () => {
       avatar: base64,
     };
 
-    console.log({ payload });
+    dispatch(toggleLoading(true));
+
+    editProfile.mutateAsync(payload, {
+      onSuccess: (result) => {
+        refetch();
+        toast.success(result.data.message);
+      },
+      onError: (result) => {
+        const errorMessage = result.response?.data.message;
+
+        console.error(errorMessage);
+        toast.error(errorMessage);
+        form.setError('username', {
+          type: 'required',
+          message: errorMessage,
+        });
+      },
+      onSettled: () => {
+        dispatch(toggleLoading(false));
+      },
+    });
   };
+
+  useEffect(() => {
+    if (currentUser?.avatar) {
+      setAvatarPreview(
+        currentUser.avatar.startsWith('data:image')
+          ? currentUser.avatar
+          : `data:image/png;base64,${currentUser.avatar}`
+      );
+    }
+  }, [currentUser]);
 
   return (
     <Card className='p-4 flex'>

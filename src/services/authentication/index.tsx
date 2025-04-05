@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 import axiosRequest from '..';
 import { useDispatch } from 'react-redux';
 import { signIn } from '@/store/auth/auth.slice';
@@ -75,6 +75,21 @@ const useAuthenticationQuery = () => {
   });
 
   return { checkUser, signInUser, signOutUser, signUpUser };
+};
+
+export const useEditProfile = () => {
+  return useMutation<
+    AxiosResponse<BaseResponse>,
+    AxiosError<BaseResponse>,
+    { avatar: string | null | undefined; username: string }
+  >({
+    mutationKey: ['auth.edit-profile'],
+    mutationFn: async (payload) => {
+      return await axiosRequest.patch('/auth/edit-profile', payload, {
+        withCredentials: true,
+      });
+    },
+  });
 };
 
 export default useAuthenticationQuery;

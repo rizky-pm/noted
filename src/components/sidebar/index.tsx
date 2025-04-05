@@ -16,8 +16,10 @@ import { signOut } from '@/store/auth/auth.slice';
 import { RootState } from '@/store';
 import { getInitialName } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 const Sidebar = () => {
+  const [avatarPreview, setAvatarPreview] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -30,6 +32,16 @@ const Sidebar = () => {
       },
     });
   };
+
+  useEffect(() => {
+    if (currentUser?.avatar) {
+      setAvatarPreview(
+        currentUser.avatar.startsWith('data:image')
+          ? currentUser.avatar
+          : `data:image/png;base64,${currentUser.avatar}`
+      );
+    }
+  }, [currentUser]);
 
   return (
     <nav className='px-4 py-6 flex justify-between items-center'>
@@ -50,8 +62,9 @@ const Sidebar = () => {
               <DropdownMenuTrigger asChild>
                 <Avatar className='w-9 h-9 cursor-pointer'>
                   <AvatarImage
-                    src='https://github.com/shadcsn.png'
+                    src={avatarPreview}
                     alt='@shadcn'
+                    className='object-cover'
                   />
                   <AvatarFallback className='border-2'>
                     {currentUser.avatar

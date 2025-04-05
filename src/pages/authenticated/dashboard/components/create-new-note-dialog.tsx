@@ -33,12 +33,14 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { DialogClose } from '@radix-ui/react-dialog';
 import { useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { useCreateNote } from '@/services/note';
+import { toggleLoading } from '@/store/global/global.slice';
 
 const CreateNewNoteDialog = () => {
   const createNewNote = useCreateNote();
+  const dispatch = useDispatch();
   const query = useQueryClient();
   const tags = useSelector((state: RootState) => state.tag);
   const closeDialogRef = useRef<HTMLDivElement | null>(null);
@@ -64,6 +66,8 @@ const CreateNewNoteDialog = () => {
       },
     };
 
+    dispatch(toggleLoading(true));
+
     createNewNote.mutateAsync(payload, {
       onSuccess: () => {
         toast.success('Success create new note');
@@ -75,6 +79,9 @@ const CreateNewNoteDialog = () => {
       },
       onError: (error) => {
         console.error(error);
+      },
+      onSettled: () => {
+        dispatch(toggleLoading(false));
       },
     });
   };
