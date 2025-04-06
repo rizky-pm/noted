@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axiosRequest from '..';
 import { IGetAllNoteResponse, INoteServieFilters } from './type';
 import { INewNote, INote } from '@/type';
+import { useSocket } from '@/hooks/useSocket';
 
 export const useGetAllNotes = (filter: INoteServieFilters) => {
   return useQuery({
@@ -67,17 +68,20 @@ export const useEditNote = () => {
 
 export const useUpdateNotePosition = () => {
   const queryClient = useQueryClient();
+  const socket = useSocket('/ws/v1/notes/update-position');
 
   return useMutation({
-    mutationKey: ['note.update-position'],
+    mutationKey: ['note.update-position-websocket'],
     mutationFn: async (payload: { x: number; y: number; noteId: string }) => {
-      const { x, y, noteId } = payload;
-      const response = await axiosRequest.patch(
-        `/notes/update-position/${noteId}`,
-        { x, y },
-        { withCredentials: true }
-      );
-      return response;
+      if (socket?.readyState === WebSocket.OPEN) {
+        socket.send(
+          JSON.stringify({
+            type: 'UPDATE_NOTE_POSITION',
+            payload,
+          })
+        );
+      }
+      return true;
     },
     onMutate: async (newPosition) => {
       await queryClient.cancelQueries({ queryKey: ['note.get-all'] });
@@ -98,9 +102,6 @@ export const useUpdateNotePosition = () => {
       if (context?.previousNotes) {
         queryClient.setQueryData(['note.get-all'], context.previousNotes);
       }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['note.get-all'] });
     },
   });
 };

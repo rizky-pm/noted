@@ -38,5 +38,6 @@ export interface INote {
   position: {
     x: number;
     y: number;
+    lastMovedAt: number;
   };
 }

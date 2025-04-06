@@ -18,11 +18,14 @@ import DraggableNote from './components/draggable-note';
 import { setNotePosition } from './state';
 import _ from 'lodash';
 import { useGetAllTag } from '@/services/tag';
+import { getWebSocket } from '@/lib/socket';
+import { useQueryClient } from '@tanstack/react-query';
 
 const DashboardPage = () => {
   const [notes, setNotes] = useState<INote[]>([]);
   const filters = useSelector((state: RootState) => state.filter);
   const noteCardRef = useRef<HTMLDivElement | null>(null);
+  const queryClient = useQueryClient();
   const getAllNotes = useGetAllNotes(filters);
   const updateNotePosition = useUpdateNotePosition();
   const { data: notesData, isLoading } = getAllNotes;
@@ -46,29 +49,36 @@ const DashboardPage = () => {
       return prevNotes.map((note) => {
         if (note._id !== active.id) return note;
 
-        const payload = {
-          noteId: _.toString(active.id),
-          x: note.position.x + delta.x,
-          y: note.position.y + delta.y,
-        };
-
-        updateNotePosition.mutate(payload);
-
         return {
           ...note,
           position: {
+            ...note.position,
             x: note.position.x + delta.x,
             y: note.position.y + delta.y,
           },
         };
       });
     });
+
+    const noteId = _.toString(active.id);
+    const note = notes.find((n) => n._id === noteId);
+
+    if (note) {
+      updateNotePosition.mutate({
+        noteId,
+        x: note.position.x + delta.x,
+        y: note.position.y + delta.y,
+      });
+    }
   };
+
   useEffect(() => {
     if (notesData?.notes) {
       const initialPositions = [...notesData.notes];
 
-      initialPositions.sort((a, b) => (a.updatedAt || 0) - (b.updatedAt || 0));
+      initialPositions.sort(
+        (a, b) => (a.position.lastMovedAt || 0) - (b.position.lastMovedAt || 0)
+      );
 
       setNotes(initialPositions);
     }
@@ -95,6 +105,42 @@ const DashboardPage = () => {
       dispatch(storeTagData(tagData.data));
     }
   }, [isFetched, tagData, dispatch]);
+
+  useEffect(() => {
+    const socket = getWebSocket('/ws/v1/notes/update-position');
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'UPDATE_NOTE_POSITION') {
+          const { noteId, x, y, lastMovedAt } = data.payload;
+
+          setNotes((prevNotes) => {
+            const updated = prevNotes.map((note) => {
+              if (note._id !== noteId) return note;
+
+              return {
+                ...note,
+                position: {
+                  ...note.position,
+                  x,
+                  y,
+                  lastMovedAt,
+                },
+              };
+            });
+
+            return updated.sort(
+              (a, b) => a.position.lastMovedAt - b.position.lastMovedAt
+            );
+          });
+        }
+      } catch (error) {
+        console.error('❌ Error parsing WS message:', error);
+      }
+    };
+  }, [queryClient]);
 
   return (
     <section className='w-full h-[calc(100vh-6rem)] p-4'>
