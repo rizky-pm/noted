@@ -10,9 +10,10 @@ import {
 import { RootState } from '@/store';
 import _ from 'lodash';
 import { ListFilterPlus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { applyFilter } from '../actions/actions.slice';
+import { DialogClose } from '@/components/ui/dialog';
 
 const FilterDrawer = () => {
   const [filter, setFilter] = useState<{ tag: string[] }>({
@@ -21,6 +22,7 @@ const FilterDrawer = () => {
 
   const tags = useSelector((state: RootState) => state.tag);
   const filterState = useSelector((state: RootState) => state.filter);
+  const closeDialogRef = useRef<HTMLDivElement | null>(null);
   const dispatch = useDispatch();
 
   const onClickTag = (id: string) => {
@@ -38,6 +40,10 @@ const FilterDrawer = () => {
 
   const onClickApply = () => {
     dispatch(applyFilter({ ...filterState, tag: filter.tag }));
+
+    if (closeDialogRef) {
+      closeDialogRef.current?.click();
+    }
   };
 
   useEffect(() => {
@@ -88,6 +94,9 @@ const FilterDrawer = () => {
               Apply
             </Button>
           </div>
+          <DialogClose asChild>
+            <div ref={closeDialogRef} id='close-dialog' />
+          </DialogClose>
         </DrawerContent>
       </Drawer>
     </div>
