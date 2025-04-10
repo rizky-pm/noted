@@ -133,6 +133,7 @@ const ViewNote = (note: INote) => {
         onClick={() => {
           setIsDialogOpen(true);
         }}
+        className='bg-muted'
       >
         <NoteCard data={note} key={note._id} />
       </div>
