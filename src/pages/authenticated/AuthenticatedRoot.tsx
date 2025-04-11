@@ -34,18 +34,19 @@ const AuthenticatedRoot = () => {
   if (isPending) return <LoadingScreen />;
 
   return currentUser ? (
-    <main className={`flex flex-col items-center relative`}>
-      <div className='max-w-screen-lg w-full'>
+    <div className='min-h-screen flex flex-col items-center relative'>
+      <div className='flex flex-col flex-grow w-full max-w-screen-lg'>
         <Sidebar />
-        <section>
+        <main className='flex-grow'>
           <Outlet />
-        </section>
+        </main>
       </div>
       <Footer />
-      {isLoading ? (
+
+      {isLoading && (
         <motion.div
           id='overlay'
-          className='bg-black/70 w-full h-full fixed top-0 left-0 flex justify-center items-center flex-col'
+          className='bg-black/70 w-full h-full fixed top-0 left-0 flex justify-center items-center flex-col z-50'
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -64,8 +65,8 @@ const AuthenticatedRoot = () => {
             </motion.div>
           </div>
         </motion.div>
-      ) : null}
-    </main>
+      )}
+    </div>
   ) : (
     <Navigate to='/auth/sign-in' replace />
   );

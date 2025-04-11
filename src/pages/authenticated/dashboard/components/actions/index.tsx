@@ -11,10 +11,12 @@ import { RootState } from '@/store';
 
 import FilterDrawer from '../filter-drawer';
 import CreateNewNoteDialog from '../create-new-note-dialog';
+import useBreakpoints from '@/hooks/useMediaQuery';
 
 const Actions = () => {
   const filter = useSelector((state: RootState) => state.filter);
   const dispatch = useDispatch();
+  const { isMediumScreen } = useBreakpoints();
 
   const form = useForm<TypeSearchSchema>({
     resolver: zodResolver(searchSchema),
@@ -33,14 +35,17 @@ const Actions = () => {
   };
 
   return (
-    <div className='flex gap-2'>
+    <div className='flex w-full flex-wrap gap-y-2 md:gap-y-0 gap-2'>
       <Form {...form}>
-        <form className='flex gap-2' onSubmit={form.handleSubmit(onSearch)}>
+        <form
+          className='flex justify-between w-full md:w-auto md:gap-2'
+          onSubmit={form.handleSubmit(onSearch)}
+        >
           <FormField
             control={form.control}
             name='searchTerm'
             render={({ field }) => (
-              <FormItem>
+              <FormItem className='w-full'>
                 <Input
                   className='w-80'
                   placeholder='Search by title'
@@ -58,11 +63,15 @@ const Actions = () => {
 
       <FilterDrawer />
 
-      <Button variant={'destructive'} onClick={onResetFilter}>
-        <RotateCcw /> Reset filters
+      <Button
+        variant={'destructive'}
+        size={isMediumScreen ? 'default' : 'icon'}
+        onClick={onResetFilter}
+      >
+        <RotateCcw /> {isMediumScreen ? 'Reset filters' : ''}
       </Button>
 
-      <div className='ml-auto'>
+      <div className='md:ml-auto'>
         <CreateNewNoteDialog />
       </div>
     </div>

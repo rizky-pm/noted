@@ -37,6 +37,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { useCreateNote } from '@/services/note';
 import { toggleLoading } from '@/store/global/global.slice';
+import useBreakpoints from '@/hooks/useMediaQuery';
+import { SquarePen } from 'lucide-react';
 
 const CreateNewNoteDialog = () => {
   const createNewNote = useCreateNote();
@@ -47,6 +49,7 @@ const CreateNewNoteDialog = () => {
   const notePosition = useSelector(
     (state: RootState) => state.dashboard.note.position
   );
+  const { isMediumScreen } = useBreakpoints();
 
   const form = useForm<z.infer<typeof createNewNoteSchema>>({
     resolver: zodResolver(createNewNoteSchema),
@@ -95,7 +98,9 @@ const CreateNewNoteDialog = () => {
       }}
     >
       <DialogTrigger asChild>
-        <Button>Take a Note</Button>
+        <Button size={isMediumScreen ? 'default' : 'icon'}>
+          <SquarePen /> {isMediumScreen ? 'Take a Note' : ''}
+        </Button>
       </DialogTrigger>
       <DialogContent className='max-w-[37.5rem]'>
         <DialogHeader>

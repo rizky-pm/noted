@@ -20,8 +20,8 @@ const DraggableNote = (props: IDraggableNoteProps) => {
 
   const style = {
     position: 'absolute' as const,
-    left: transform ? _.toString(position.x + transform.x) : position.x,
-    top: transform ? _.toString(position.y + transform.y) : position.y,
+    left: position.x,
+    top: position.y,
     transition: transform ? 'none' : 'transform 0.2s ease',
   };
 

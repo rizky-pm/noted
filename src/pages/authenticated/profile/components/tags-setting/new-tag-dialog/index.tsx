@@ -50,8 +50,6 @@ const NewTagDialog = (props: IProps) => {
   const createNewTag = useCreateNewTag();
 
   const onSubmitNewTag = (values: TypeCreateNewTagSchema) => {
-    console.log(values);
-
     const payload = { ...values };
 
     createNewTag.mutateAsync(payload, {

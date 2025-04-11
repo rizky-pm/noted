@@ -61,7 +61,7 @@ const FilterDrawer = () => {
             <ListFilterPlus />
           </Button>
         </DrawerTrigger>
-        <DrawerContent className='flex justify-center items-center pb-8'>
+        <DrawerContent className='flex justify-center items-center px-8 pb-8 md:px-0'>
           <div className='max-w-screen-lg w-full px-0 flex flex-col gap-4'>
             <DrawerHeader className='max-w-screen-lg w-full px-0'>
               <DrawerTitle>Filter</DrawerTitle>

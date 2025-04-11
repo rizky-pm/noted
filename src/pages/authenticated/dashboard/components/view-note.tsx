@@ -42,13 +42,18 @@ import { Badge } from '@/components/ui/badge';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import moment from 'moment';
 import { useDraggable } from '@dnd-kit/core';
+import { useSortable } from '@dnd-kit/sortable';
+import useBreakpoints from '@/hooks/useMediaQuery';
 
 const ViewNote = (note: INote) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { setNodeRef, transform } = useDraggable({
+  const { isMediumScreen } = useBreakpoints();
+
+  const draggable = useDraggable({
     id: note._id,
   });
+  const sortable = useSortable({ id: note._id });
 
   const tags = useSelector((state: RootState) => state.tag);
   const query = useQueryClient();
@@ -67,10 +72,15 @@ const ViewNote = (note: INote) => {
   const contentLength = form.watch('content').length;
   const closeDialogRef = useRef<HTMLDivElement | null>(null);
 
-  const style = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+  const draggableStyle = {
+    transform: draggable.transform
+      ? `translate3d(${draggable.transform.x}px, ${draggable.transform.y}px, 0)`
       : undefined,
+  };
+
+  const sortableStyle = {
+    transform: undefined,
+    transition: 'transform 200 ease',
   };
 
   const onClickEdit = () => {
@@ -125,10 +135,13 @@ const ViewNote = (note: INote) => {
     }
   }, [isDialogOpen]);
 
+  const nodeRef = isMediumScreen ? draggable.setNodeRef : sortable.setNodeRef;
+  const style = isMediumScreen ? draggableStyle : sortableStyle;
+
   return (
     <>
       <div
-        ref={setNodeRef}
+        ref={nodeRef}
         style={style}
         onClick={() => {
           setIsDialogOpen(true);
