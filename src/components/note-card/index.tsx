@@ -11,7 +11,7 @@ import {
 import { INote } from '@/type';
 import { Badge } from '../ui/badge';
 import { formatTimeAgo } from '@/lib/utils';
-import useBreakpoints from '@/hooks/useMediaQuery';
+import { useBreakpoints } from '@/hooks';
 
 interface IProps {
   data: INote;

@@ -37,7 +37,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { useCreateNote } from '@/services/note';
 import { toggleLoading } from '@/store/global/global.slice';
-import useBreakpoints from '@/hooks/useMediaQuery';
+import { useBreakpoints } from '@/hooks';
 import { SquarePen } from 'lucide-react';
 
 const CreateNewNoteDialog = () => {

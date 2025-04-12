@@ -11,7 +11,7 @@ import { RootState } from '@/store';
 
 import FilterDrawer from '../filter-drawer';
 import CreateNewNoteDialog from '../create-new-note-dialog';
-import useBreakpoints from '@/hooks/useMediaQuery';
+import { useBreakpoints } from '@/hooks';
 
 const Actions = () => {
   const filter = useSelector((state: RootState) => state.filter);

@@ -8,7 +8,7 @@ const breakpoints = {
   '2xl': '(min-width: 96rem)',
 };
 
-const useBreakpoints = () => {
+export const useBreakpoints = () => {
   const isSmallScren = useMediaQuery({ query: breakpoints.sm });
   const isMediumScreen = useMediaQuery({ query: breakpoints.md });
   const isLargeScreen = useMediaQuery({ query: breakpoints.lg });
@@ -23,5 +23,3 @@ const useBreakpoints = () => {
     isTwoExtraLargeScreen,
   };
 };
-
-export default useBreakpoints;

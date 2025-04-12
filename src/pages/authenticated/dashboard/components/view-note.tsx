@@ -43,7 +43,7 @@ import { DialogDescription } from '@radix-ui/react-dialog';
 import moment from 'moment';
 import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
-import useBreakpoints from '@/hooks/useMediaQuery';
+import { useBreakpoints } from '@/hooks';
 
 const ViewNote = (note: INote) => {
   const [isEditMode, setIsEditMode] = useState(false);

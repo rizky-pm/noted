@@ -1,10 +1,5 @@
-import { useGetAllNotes, useUpdateNotePosition } from '@/services/note';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { storeTagData } from '@/store/tag/tag.slice';
-import Actions from './components/actions';
-import { RootState } from '@/store';
-
 import {
   DndContext,
   DragEndEvent,
@@ -14,7 +9,7 @@ import {
   useSensors,
   rectIntersection,
 } from '@dnd-kit/core';
-
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import {
   arrayMove,
   SortableContext,
@@ -22,40 +17,45 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import { restrictToWindowEdges } from '@dnd-kit/modifiers';
-import { INote } from '@/type';
-import DraggableNote from './components/draggable-note';
-import { setNotePosition } from './state';
-import _ from 'lodash';
+import { useGetAllNotes, useUpdateNotePosition } from '@/services/note';
 import { useGetAllTag } from '@/services/tag';
-import { getWebSocket } from '@/lib/socket';
-import { useQueryClient } from '@tanstack/react-query';
-import useBreakpoints from '@/hooks/useMediaQuery';
+import { storeTagData } from '@/store/tag/tag.slice';
+import { RootState } from '@/store';
+import { setNotePosition } from './state';
+
+import Actions from './components/actions';
+import DraggableNote from './components/draggable-note';
 import SortableNote from './components/sortable-note';
+import {
+  useResizeNotePosition,
+  useSortedNotes,
+  useWebSocketNotePosition,
+  useBreakpoints,
+} from '@/hooks';
+
+import { INote } from '@/type';
 
 const DashboardPage = () => {
   const [notes, setNotes] = useState<INote[]>([]);
-  const filters = useSelector((state: RootState) => state.filter);
+  const dispatch = useDispatch();
   const noteCardRef = useRef<HTMLDivElement | null>(null);
-  const queryClient = useQueryClient();
-  const getAllNotes = useGetAllNotes(filters);
-  const updateNotePosition = useUpdateNotePosition();
+  const filters = useSelector((state: RootState) => state.filter);
 
   const { isMediumScreen } = useBreakpoints();
+  const getAllNotes = useGetAllNotes(filters);
   const { data: notesData, isLoading } = getAllNotes;
+  const updateNotePosition = useUpdateNotePosition();
+
   const { data: tagData, isFetched } = useGetAllTag();
 
-  const dispatch = useDispatch();
-  const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: {
-      distance: {
-        x: 5,
-        y: 5,
-      },
-    },
-  });
+  useResizeNotePosition(notes, setNotes);
+  useWebSocketNotePosition(setNotes);
+  useSortedNotes(notesData, setNotes);
+
   const sensors = useSensors(
-    pointerSensor,
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: { x: 5, y: 5 } },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -64,196 +64,105 @@ const DashboardPage = () => {
   const handleDragEnd = (event: DragEndEvent) => {
     if (isMediumScreen) {
       const { active, delta } = event;
+      const id = String(active.id);
 
-      setNotes((prevNotes) => {
-        return prevNotes.map((note) => {
-          if (note._id !== active.id) return note;
+      setNotes((prevNotes) =>
+        prevNotes.map((note) =>
+          note._id === id
+            ? {
+                ...note,
+                position: {
+                  ...note.position,
+                  x: note.position.x + delta.x,
+                  y: note.position.y + delta.y,
+                },
+              }
+            : note
+        )
+      );
 
-          return {
-            ...note,
-            position: {
-              ...note.position,
-              x: note.position.x + delta.x,
-              y: note.position.y + delta.y,
-            },
-          };
-        });
-      });
-
-      const noteId = _.toString(active.id);
-      const note = notes.find((n) => n._id === noteId);
-
+      const note = notes.find((n) => n._id === id);
       if (note) {
         updateNotePosition.mutate({
-          noteId,
+          noteId: id,
           x: note.position.x + delta.x,
           y: note.position.y + delta.y,
         });
       }
     } else {
       const { active, over } = event;
-
       if (!over || active.id === over.id) return;
 
       setNotes((items) => {
         const oldIndex = items.findIndex((item) => item._id === active.id);
         const newIndex = items.findIndex((item) => item._id === over.id);
-
-        if (oldIndex === -1 || newIndex === -1) return items;
-
-        return arrayMove(items, oldIndex, newIndex);
+        return oldIndex !== -1 && newIndex !== -1
+          ? arrayMove(items, oldIndex, newIndex)
+          : items;
       });
     }
   };
 
+  // ** Calculate default position
   useEffect(() => {
-    if (notesData?.notes) {
-      const initialPositions = [...notesData.notes];
+    const width = noteCardRef.current?.getBoundingClientRect().width || 0;
+    const height = noteCardRef.current?.getBoundingClientRect().height || 0;
 
-      initialPositions.sort(
-        (a, b) => (a.position.lastMovedAt || 0) - (b.position.lastMovedAt || 0)
-      );
-
-      setNotes(initialPositions);
-    }
-  }, [notesData]);
-
-  useEffect(() => {
-    if (noteCardRef) {
-      const notePositionX = noteCardRef.current?.getBoundingClientRect().width;
-      const notePositionY = noteCardRef.current?.getBoundingClientRect().height;
-
-      if (notePositionX && notePositionY) {
-        dispatch(
-          setNotePosition({
-            x: notePositionX / 2 - 80,
-            y: notePositionY / 2 - 240,
-          })
-        );
-      }
+    if (width && height) {
+      dispatch(setNotePosition({ x: width / 2 - 80, y: height / 2 - 240 }));
     }
   }, [noteCardRef, dispatch]);
 
+  // ** Tag store
   useEffect(() => {
     if (isFetched && tagData) {
       dispatch(storeTagData(tagData.data));
     }
   }, [isFetched, tagData, dispatch]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      const newWidth = window.innerWidth;
-
-      setNotes((prevNotes) =>
-        prevNotes.map((note) => {
-          const noteRightEdge = note.position.x + 320;
-
-          if (noteRightEdge > newWidth) {
-            return {
-              ...note,
-              position: {
-                ...note.position,
-                x: newWidth - 320,
-              },
-            };
-          }
-
-          return note;
-        })
-      );
-    };
-
-    const debouncedResize = _.debounce(handleResize, 0);
-
-    window.addEventListener('resize', debouncedResize);
-
-    return () => {
-      window.removeEventListener('resize', debouncedResize);
-    };
-  }, []);
-
-  useEffect(() => {
-    const socket = getWebSocket('/ws/v1/notes/update-position');
-
-    socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-
-        if (data.type === 'UPDATE_NOTE_POSITION') {
-          const { noteId, x, y, lastMovedAt } = data.payload;
-
-          setNotes((prevNotes) => {
-            const updated = prevNotes.map((note) => {
-              if (note._id !== noteId) return note;
-
-              return {
-                ...note,
-                position: {
-                  ...note.position,
-                  x,
-                  y,
-                  lastMovedAt,
-                },
-              };
-            });
-
-            return updated.sort(
-              (a, b) => a.position.lastMovedAt - b.position.lastMovedAt
-            );
-          });
-        }
-      } catch (error) {
-        console.error('❌ Error parsing WS message:', error);
-      }
-    };
-  }, [queryClient]);
-
   return (
     <section className='w-full md:h-[calc(100vh-7.8125rem)] p-4 flex justify-center items-center flex-col'>
       <Actions />
-
-      {noteCardRef ? (
-        <div
-          className='relative w-screen px-4 md:px-0 h-auto md:h-[calc(100%-16px)]'
-          ref={noteCardRef}
+      <div
+        ref={noteCardRef}
+        className='relative w-screen px-4 md:px-0 h-auto md:h-[calc(100%-16px)] md:flex md:justify-center md:items-center'
+      >
+        <DndContext
+          collisionDetection={rectIntersection}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToWindowEdges]}
+          sensors={sensors}
         >
-          <DndContext
-            collisionDetection={rectIntersection}
-            onDragEnd={handleDragEnd}
-            modifiers={[restrictToWindowEdges]}
-            sensors={sensors}
-          >
-            {isLoading ? (
-              <h1>Loading data...</h1>
-            ) : notes.length ? (
-              isMediumScreen ? (
-                notes.map((note) => (
-                  <DraggableNote
-                    key={note._id}
-                    note={note}
-                    position={note.position}
-                  />
-                ))
-              ) : (
-                <SortableContext
-                  items={notes.map((note) => note._id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {notes.map((note) => (
-                    <SortableNote key={note._id} note={note} />
-                  ))}
-                </SortableContext>
-              )
+          {isLoading ? (
+            <h1>Loading data...</h1>
+          ) : notes.length ? (
+            isMediumScreen ? (
+              notes.map((note) => (
+                <DraggableNote
+                  key={note._id}
+                  note={note}
+                  position={note.position}
+                />
+              ))
             ) : (
-              <div className='flex justify-center items-center relative top-0 left-0'>
-                <p className='text-muted-foreground text-sm'>
-                  You don&apos;t have any notes. Try adding one!
-                </p>
-              </div>
-            )}
-          </DndContext>
-        </div>
-      ) : null}
+              <SortableContext
+                items={notes.map((note) => note._id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {notes.map((note) => (
+                  <SortableNote key={note._id} note={note} />
+                ))}
+              </SortableContext>
+            )
+          ) : (
+            <div className='flex justify-center items-center relative top-0 left-0'>
+              <p className='text-muted-foreground text-sm'>
+                You don&apos;t have any notes. Try adding one!
+              </p>
+            </div>
+          )}
+        </DndContext>
+      </div>
     </section>
   );
 };

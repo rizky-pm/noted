@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { useDraggable } from '@dnd-kit/core';
 
 import ViewNote from '../view-note';
