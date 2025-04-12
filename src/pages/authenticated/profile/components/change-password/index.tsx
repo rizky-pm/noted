@@ -13,8 +13,16 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TypographyH4 } from '@/components/ui/typography';
+import { useChangePassword } from '@/services/authentication';
+import { useDispatch } from 'react-redux';
+import { toggleLoading } from '@/store/global/global.slice';
+import { toast } from 'sonner';
+import { getAxiosError } from '@/utils/error';
 
 const ChangePassword = () => {
+  const dispatch = useDispatch();
+  const changePassword = useChangePassword();
+
   const form = useForm<TypeChangePasswordSchema>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
@@ -24,8 +32,38 @@ const ChangePassword = () => {
     },
   });
 
-  const handleClickChangePassword = (values: TypeChangePasswordSchema) => {
-    console.log(values);
+  const handleClickChangePassword = async (
+    values: TypeChangePasswordSchema
+  ) => {
+    const { oldPassword, newPassword } = values;
+
+    const payload = {
+      oldPassword,
+      newPassword,
+    };
+
+    dispatch(toggleLoading(true));
+
+    changePassword.mutateAsync(payload, {
+      onSuccess: (result) => {
+        toast.success(result.data.message);
+        form.reset();
+      },
+      onError: (error) => {
+        const { message, errorCode } = getAxiosError(error);
+        toast.error(message);
+
+        if (errorCode === 'invalid-old-password') {
+          form.setError('oldPassword', {
+            type: 'required',
+            message,
+          });
+        }
+      },
+      onSettled: () => {
+        dispatch(toggleLoading(false));
+      },
+    });
   };
 
   return (

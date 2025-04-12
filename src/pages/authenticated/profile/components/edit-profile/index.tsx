@@ -23,6 +23,7 @@ import useAuthenticationQuery, {
   useEditProfile,
 } from '@/services/authentication';
 import { toggleLoading } from '@/store/global/global.slice';
+import { getAxiosError } from '@/utils/error';
 
 const EditProfile = () => {
   const [avatarPreview, setAvatarPreview] = useState('');
@@ -66,14 +67,13 @@ const EditProfile = () => {
         refetch();
         toast.success(result.data.message);
       },
-      onError: (result) => {
-        const errorMessage = result.response?.data.message;
+      onError: (error) => {
+        const { message } = getAxiosError(error);
 
-        console.error(errorMessage);
-        toast.error(errorMessage);
+        toast.error(message);
         form.setError('username', {
           type: 'required',
-          message: errorMessage,
+          message: message,
         });
       },
       onSettled: () => {

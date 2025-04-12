@@ -79,13 +79,28 @@ const useAuthenticationQuery = () => {
 
 export const useEditProfile = () => {
   return useMutation<
-    AxiosResponse<BaseResponse>,
-    AxiosError<BaseResponse>,
+    AxiosResponse,
+    AxiosError,
     { avatar: string | null | undefined; username: string }
   >({
     mutationKey: ['auth.edit-profile'],
     mutationFn: async (payload) => {
       return await axiosRequest.patch('/auth/edit-profile', payload, {
+        withCredentials: true,
+      });
+    },
+  });
+};
+
+export const useChangePassword = () => {
+  return useMutation<
+    AxiosResponse,
+    AxiosError,
+    { oldPassword: string; newPassword: string }
+  >({
+    mutationKey: ['auth.change-password'],
+    mutationFn: async (payload) => {
+      return await axiosRequest.patch('/auth/change-password', payload, {
         withCredentials: true,
       });
     },
