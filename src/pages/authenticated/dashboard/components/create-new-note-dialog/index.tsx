@@ -1,3 +1,15 @@
+import { useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useDispatch, useSelector } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
+
+import { toast } from 'sonner';
+import { SquarePen } from 'lucide-react';
+import { DialogClose } from '@radix-ui/react-dialog';
+
+import { useBreakpoints } from '@/hooks';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -25,33 +37,27 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { createNewNoteSchema } from '@/schema';
-import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
-import { DialogClose } from '@radix-ui/react-dialog';
-import { useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { createNewNoteSchema, TypeCreateNewNoteSchema } from '@/schema';
+
 import { RootState } from '@/store';
-import { useCreateNote } from '@/services/note';
 import { toggleLoading } from '@/store/global/global.slice';
-import { useBreakpoints } from '@/hooks';
-import { SquarePen } from 'lucide-react';
+
+import { useCreateNote } from '@/services/note';
 
 const CreateNewNoteDialog = () => {
-  const createNewNote = useCreateNote();
   const dispatch = useDispatch();
-  const query = useQueryClient();
-  const tags = useSelector((state: RootState) => state.tag);
+  const queryClient = useQueryClient();
+  const createNote = useCreateNote();
+
   const closeDialogRef = useRef<HTMLDivElement | null>(null);
+
+  const tags = useSelector((state: RootState) => state.tag);
   const notePosition = useSelector(
     (state: RootState) => state.dashboard.note.position
   );
   const { isMediumScreen } = useBreakpoints();
 
-  const form = useForm<z.infer<typeof createNewNoteSchema>>({
+  const form = useForm<TypeCreateNewNoteSchema>({
     resolver: zodResolver(createNewNoteSchema),
     defaultValues: {
       title: '',
@@ -60,7 +66,9 @@ const CreateNewNoteDialog = () => {
     },
   });
 
-  const onSubmitNewNote = (values: z.infer<typeof createNewNoteSchema>) => {
+  const contentLength = form.watch('content').length;
+
+  const onSubmit = (values: TypeCreateNewNoteSchema) => {
     const payload = {
       ...values,
       position: {
@@ -71,25 +79,20 @@ const CreateNewNoteDialog = () => {
 
     dispatch(toggleLoading(true));
 
-    createNewNote.mutateAsync(payload, {
+    createNote.mutateAsync(payload, {
       onSuccess: () => {
         toast.success('Success create new note');
-        query.invalidateQueries({ queryKey: ['note.get-all'] });
-
-        if (closeDialogRef) {
-          closeDialogRef.current?.click();
-        }
+        queryClient.invalidateQueries({ queryKey: ['note.get-all'] });
+        closeDialogRef.current?.click();
       },
-      onError: (error) => {
-        console.error(error);
+      onError: (err) => {
+        console.error(err);
       },
       onSettled: () => {
         dispatch(toggleLoading(false));
       },
     });
   };
-
-  const contentLength = form.watch('content').length;
 
   return (
     <Dialog
@@ -102,6 +105,7 @@ const CreateNewNoteDialog = () => {
           <SquarePen /> {isMediumScreen ? 'Take a Note' : ''}
         </Button>
       </DialogTrigger>
+
       <DialogContent className='max-w-[37.5rem]'>
         <DialogHeader>
           <DialogTitle>Take a Note</DialogTitle>
@@ -109,9 +113,10 @@ const CreateNewNoteDialog = () => {
             Quick, simple, and always accessible. What’s on your mind?
           </DialogDescription>
         </DialogHeader>
+
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmitNewNote)}
+            onSubmit={form.handleSubmit(onSubmit)}
             className='flex flex-col gap-4 py-4'
           >
             <FormField
@@ -119,13 +124,10 @@ const CreateNewNoteDialog = () => {
               name='title'
               render={({ field }) => (
                 <FormItem>
-                  <div className='items-start flex flex-col gap-2'>
-                    <Label htmlFor='title' className='text-right'>
-                      Title
-                    </Label>
+                  <div className='flex flex-col gap-2 items-start'>
+                    <Label htmlFor='title'>Title</Label>
                     <Input
                       id='title'
-                      className='col-span-3'
                       placeholder='Your new note title'
                       maxLength={25}
                       {...field}
@@ -141,10 +143,8 @@ const CreateNewNoteDialog = () => {
               name='tag'
               render={({ field }) => (
                 <FormItem>
-                  <div className='items-start flex flex-col gap-2'>
-                    <Label htmlFor='tag' className='text-right'>
-                      Tag
-                    </Label>
+                  <div className='flex flex-col gap-2 items-start'>
+                    <Label htmlFor='tag'>Tag</Label>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -170,14 +170,11 @@ const CreateNewNoteDialog = () => {
               control={form.control}
               name='content'
               render={({ field }) => (
-                <div className='items-start flex flex-col gap-2'>
-                  <Label htmlFor='username' className='text-right'>
-                    Note content
-                  </Label>
+                <div className='flex flex-col gap-2 items-start'>
+                  <Label htmlFor='content'>Note content</Label>
                   <Textarea
-                    id='Your new note content'
+                    id='content'
                     placeholder='Type your message here.'
-                    className='col-span-3'
                     rows={10}
                     maxLength={500}
                     {...field}
@@ -189,11 +186,13 @@ const CreateNewNoteDialog = () => {
                 </div>
               )}
             />
-            <Button className='self-end' type='submit'>
+
+            <Button type='submit' className='self-end'>
               Stick It
             </Button>
           </form>
         </Form>
+
         <DialogClose asChild>
           <div ref={closeDialogRef} id='close-dialog' />
         </DialogClose>

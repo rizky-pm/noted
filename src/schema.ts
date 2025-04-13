@@ -21,3 +21,5 @@ export const createNewNoteSchema = z.object({
       message: 'Max character 500 is reached.',
     }),
 });
+
+export type TypeCreateNewNoteSchema = z.infer<typeof createNewNoteSchema>;
