@@ -34,6 +34,7 @@ import {
 } from '@/hooks';
 
 import { INote } from '@/type';
+import { useWebsocketNoteOrder } from '@/hooks/useWebsocketNoteOrder';
 
 const DashboardPage = () => {
   const [notes, setNotes] = useState<INote[]>([]);
@@ -50,7 +51,8 @@ const DashboardPage = () => {
 
   useResizeNotePosition(notes, setNotes);
   useWebSocketNotePosition(setNotes);
-  useSortedNotes(notesData, setNotes);
+  useWebsocketNoteOrder(setNotes, isMediumScreen);
+  useSortedNotes(notesData, setNotes, isMediumScreen);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -63,44 +65,63 @@ const DashboardPage = () => {
 
   const handleDragEnd = (event: DragEndEvent) => {
     if (isMediumScreen) {
-      const { active, delta } = event;
-      const id = String(active.id);
-
-      setNotes((prevNotes) =>
-        prevNotes.map((note) =>
-          note._id === id
-            ? {
-                ...note,
-                position: {
-                  ...note.position,
-                  x: note.position.x + delta.x,
-                  y: note.position.y + delta.y,
-                },
-              }
-            : note
-        )
-      );
-
-      const note = notes.find((n) => n._id === id);
-      if (note) {
-        updateNotePosition.mutate({
-          noteId: id,
-          x: note.position.x + delta.x,
-          y: note.position.y + delta.y,
-        });
-      }
+      handleFreeDrag(event);
     } else {
-      const { active, over } = event;
-      if (!over || active.id === over.id) return;
+      handleReorder(event);
+    }
+  };
 
-      setNotes((items) => {
-        const oldIndex = items.findIndex((item) => item._id === active.id);
-        const newIndex = items.findIndex((item) => item._id === over.id);
-        return oldIndex !== -1 && newIndex !== -1
-          ? arrayMove(items, oldIndex, newIndex)
-          : items;
+  // ** Handle drag and drop notes
+  const handleFreeDrag = (event: DragEndEvent) => {
+    const { active, delta } = event;
+    const id = String(active.id);
+
+    setNotes((prevNotes) =>
+      prevNotes.map((note) =>
+        note._id === id
+          ? {
+              ...note,
+              position: {
+                ...note.position,
+                x: note.position.x + delta.x,
+                y: note.position.y + delta.y,
+              },
+            }
+          : note
+      )
+    );
+
+    const note = notes.find((n) => n._id === id);
+    if (note) {
+      updateNotePosition.mutate({
+        noteId: id,
+        x: note.position.x + delta.x,
+        y: note.position.y + delta.y,
       });
     }
+  };
+
+  // ** Handle note list
+  const handleReorder = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    setNotes((items) => {
+      const oldIndex = items.findIndex((item) => item._id === active.id);
+      const newIndex = items.findIndex((item) => item._id === over.id);
+
+      if (oldIndex === -1 || newIndex === -1) return items;
+
+      const newItems = arrayMove(items, oldIndex, newIndex);
+      const movedNote = newItems[newIndex];
+
+      updateNotePosition.mutate({
+        noteId: movedNote._id,
+        order: newIndex,
+      });
+
+      return newItems;
+    });
   };
 
   // ** Calculate default position

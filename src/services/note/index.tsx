@@ -66,13 +66,20 @@ export const useEditNote = () => {
   });
 };
 
+interface UpdateNotePositionPayload {
+  noteId: string;
+  x?: number;
+  y?: number;
+  order?: number;
+}
+
 export const useUpdateNotePosition = () => {
   const queryClient = useQueryClient();
   const socket = useSocket('/ws/v1/notes/update-position');
 
   return useMutation({
     mutationKey: ['note.update-position-websocket'],
-    mutationFn: async (payload: { x: number; y: number; noteId: string }) => {
+    mutationFn: async (payload: UpdateNotePositionPayload) => {
       if (socket?.readyState === WebSocket.OPEN) {
         socket.send(
           JSON.stringify({
@@ -91,7 +98,21 @@ export const useUpdateNotePosition = () => {
       queryClient.setQueryData(['note.get-all'], (oldNotes: INote[]) => {
         return oldNotes?.map((note: INote) =>
           note._id === newPosition.noteId
-            ? { ...note, position: { x: newPosition.x, y: newPosition.y } }
+            ? {
+                ...note,
+                position: {
+                  ...note.position,
+                  ...(typeof newPosition.x === 'number' && {
+                    x: newPosition.x,
+                  }),
+                  ...(typeof newPosition.y === 'number' && {
+                    y: newPosition.y,
+                  }),
+                  ...(typeof newPosition.order === 'number' && {
+                    order: newPosition.order,
+                  }),
+                },
+              }
             : note
         );
       });
