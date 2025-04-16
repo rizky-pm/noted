@@ -58,7 +58,7 @@ const SignUpForm = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onClickSignUp)}
-        className='w-3/5 space-y-4'
+        className='w-full sm:w-3/5 space-y-4'
       >
         <div>
           <TypographyH2 className='text-primary'>Sign In!</TypographyH2>

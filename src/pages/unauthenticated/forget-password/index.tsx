@@ -18,7 +18,7 @@ const ForgetPasswordPage = () => {
     <section className='flex flex-col justify-center items-center'>
       <div
         className={cn(
-          'w-1/2 h-[calc(100vh-2rem)] rounded-lg flex flex-col justify-center items-center px-10 space-y-4',
+          'max-w-[540px] h-[calc(100vh-2rem)] rounded-lg flex flex-col justify-center items-center px-10 space-y-4',
           {
             'w-full': !isMediumScreen,
           }

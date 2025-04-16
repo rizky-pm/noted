@@ -16,7 +16,6 @@ import { useDispatch } from 'react-redux';
 import { toggleLoading } from '@/store/global/global.slice';
 import { toast } from 'sonner';
 import { getAxiosError } from '@/utils/error';
-import { cn } from '@/lib/utils';
 
 const SendEmailForm = () => {
   const dispatch = useDispatch();
@@ -49,16 +48,16 @@ const SendEmailForm = () => {
 
   return (
     <>
-      <p
-        className={cn('', {
-          'text-sm p-4 bg-green-200 rounded-md text-green-800 text-center':
-            requestToResetPassword.isSuccess,
-        })}
-      >
-        {requestToResetPassword.isSuccess
-          ? 'A link to reset your password has been sent to your email address. Please check your inbox to continue'
-          : ''}
-      </p>
+      {requestToResetPassword.isSuccess ? (
+        <p
+          className={
+            'text-sm p-4 bg-green-200 rounded-md text-green-800 text-center'
+          }
+        >
+          A link to reset your password has been sent to your email address.
+          Please check your inbox to continue
+        </p>
+      ) : null}
 
       <Form {...form}>
         <form

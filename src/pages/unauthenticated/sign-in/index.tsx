@@ -9,7 +9,7 @@ const SignInPage = () => {
   return (
     <section className='flex'>
       {isMediumScreen ? (
-        <div className='w-1/2 h-[calc(100vh-2rem)] rounded-lg bg-primary flex flex-col p-16 justify-center text-primary-foreground'>
+        <div className='max-w-[540px] sm:w-1/2 h-[calc(100vh-2rem)] rounded-lg bg-primary flex flex-col p-16 justify-center text-primary-foreground'>
           <TypographyH1>Noted!</TypographyH1>
           <TypographyH3>
             Never let a great idea slip away—capture your thoughts effortlessly

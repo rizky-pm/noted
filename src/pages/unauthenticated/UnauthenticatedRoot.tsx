@@ -19,7 +19,7 @@ const UnauthenticatedRoot = () => {
   return user ? (
     <Navigate to='/' replace />
   ) : (
-    <main className='p-4'>
+    <main className='p-4 flex justify-center items-center h-screen sm:block'>
       <Outlet />
     </main>
   );
