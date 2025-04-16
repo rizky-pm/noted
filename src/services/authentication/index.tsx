@@ -107,4 +107,49 @@ export const useChangePassword = () => {
   });
 };
 
+export const useRequestToResetPassword = () => {
+  return useMutation<AxiosResponse, AxiosError, { email: string }>({
+    mutationKey: ['auth.request-reset-password'],
+    mutationFn: async (payload) => {
+      return await axiosRequest.post('/auth/reset-password', payload);
+    },
+  });
+};
+
+interface IValidateResetPasswordSessionPayload {
+  token: string;
+  email: string;
+}
+
+export const useValidateResetPasswordSession = (
+  payload: IValidateResetPasswordSessionPayload
+) => {
+  return useQuery({
+    queryKey: ['auth.validate-reset-password-session'],
+    queryFn: async () => {
+      const response = await axiosRequest.get<BaseResponse>(
+        `/auth/validate-reset-password-session?email=${payload.email}&token=${payload.token}`
+      );
+
+      return response.data;
+    },
+    retry: 0,
+  });
+};
+
+interface IResetPasswordPayload {
+  newPassword: string;
+  email: string;
+  token: string;
+}
+
+export const useResetPassword = () => {
+  return useMutation<AxiosResponse, AxiosError, IResetPasswordPayload>({
+    mutationKey: ['auth.reset-password'],
+    mutationFn: async (payload) => {
+      return await axiosRequest.patch('/auth/reset-password', payload);
+    },
+  });
+};
+
 export default useAuthenticationQuery;

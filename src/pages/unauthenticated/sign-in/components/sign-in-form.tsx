@@ -54,6 +54,10 @@ const SignInForm = () => {
     navigate('/auth/sign-up');
   };
 
+  const onClickForgetPassword = () => {
+    navigate('/auth/forget-password');
+  };
+
   return (
     <Form {...form}>
       <form
@@ -92,6 +96,14 @@ const SignInForm = () => {
             </FormItem>
           )}
         />
+
+        <p
+          onClick={onClickForgetPassword}
+          className='text-primary text-sm text-right hover:cursor-pointer hover:text-primary/80 transition-all'
+        >
+          Forgot password?
+        </p>
+
         <Button type='submit' className='w-full'>
           Sign in
         </Button>

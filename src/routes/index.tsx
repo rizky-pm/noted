@@ -2,6 +2,8 @@ import AuthenticatedRoot from '@/pages/authenticated/AuthenticatedRoot';
 import DashboardPage from '@/pages/authenticated/dashboard';
 import ProfilePage from '@/pages/authenticated/profile';
 import ErrorPage from '@/pages/error';
+import ForgetPasswordPage from '@/pages/unauthenticated/forget-password';
+import ResetPasswordPage from '@/pages/unauthenticated/reset-password';
 import SignInPage from '@/pages/unauthenticated/sign-in';
 import SignUpPage from '@/pages/unauthenticated/sign-up';
 import UnauthenticatedRoot from '@/pages/unauthenticated/UnauthenticatedRoot';
@@ -36,6 +38,14 @@ const routes = createBrowserRouter(
         {
           path: 'sign-up',
           element: <SignUpPage />,
+        },
+        {
+          path: 'forget-password',
+          element: <ForgetPasswordPage />,
+        },
+        {
+          path: 'forget-password/reset',
+          element: <ResetPasswordPage />,
         },
       ],
     },
