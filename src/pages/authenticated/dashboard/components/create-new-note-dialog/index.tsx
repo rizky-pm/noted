@@ -106,7 +106,7 @@ const CreateNewNoteDialog = () => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className='max-w-[37.5rem]'>
+      <DialogContent className='sm:max-w-[37.5rem] rounded-md'>
         <DialogHeader>
           <DialogTitle>Take a Note</DialogTitle>
           <DialogDescription>

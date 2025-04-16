@@ -348,7 +348,7 @@ const getNoteCardClasses = (color: string, isEditMode: boolean) => {
       'bg-[linear-gradient(0deg,_rgba(255,255,255,1)60%,_rgba(254,240,138,1)95%)]',
     green:
       'bg-[linear-gradient(0deg,_rgba(255,255,255,1)60%,_rgba(187,247,208,1)95%)]',
-    blue: 'bg-[linear-gradient(0deg,_rgba(255,255,255,1)60%,_rgba(191,291,254,1)95%)]',
+    blue: 'bg-[linear-gradient(0deg,_rgba(255,255,255,1)60%,_rgba(97,165,214,1)95%)]',
   };
 
   return gradients[color] ?? '';
