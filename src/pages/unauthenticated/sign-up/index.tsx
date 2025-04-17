@@ -7,7 +7,7 @@ const SignUpPage = () => {
   return (
     <section className='flex'>
       {isMediumScreen ? (
-        <div className='max-w-[540px] sm:w-1/2 h-[calc(100vh-2rem)] rounded-lg bg-primary flex flex-col p-16 justify-center text-primary-foreground'>
+        <div className='w-full md:w-1/2 h-[calc(100vh-2rem)] rounded-lg bg-primary flex flex-col p-16 justify-center text-primary-foreground'>
           <TypographyH1>Noted!</TypographyH1>
           <TypographyH3>
             Never let a great idea slip away—capture your thoughts effortlessly
@@ -17,7 +17,7 @@ const SignUpPage = () => {
         </div>
       ) : null}
 
-      <div className='w-1/2 h-[calc(100vh-2rem)] rounded-lg flex justify-center items-center'>
+      <div className='w-full md:w-1/2 h-[calc(100vh-2rem)] rounded-lg flex justify-center items-center'>
         <SignUpForm />
       </div>
     </section>

@@ -26,7 +26,7 @@ const SignInForm = () => {
   const form = useForm<TypeSignInSchema>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      username: 'rizkymahendra',
+      username: 'cosmo',
       password: 'qwerty666',
     },
   });
