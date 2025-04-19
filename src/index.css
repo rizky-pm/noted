@@ -79,6 +79,10 @@
   .navlink--active {
     @apply navlink hover:bg-primary-foreground bg-primary-foreground text-primary;
   }
+
+  .box-shadow-stripe {
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  }
 }
 
 @layer base {

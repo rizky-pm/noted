@@ -6,7 +6,7 @@ export interface ITag {
   createdBy: number;
   label: string;
   updatedAt: string;
-  color: 'red' | 'blue' | 'yellow' | 'green';
+  color: 'red' | 'blue' | 'yellow' | 'green' | 'gray' | 'purple';
   _id: string;
   deletable: boolean;
 }

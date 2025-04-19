@@ -11,18 +11,14 @@ import { Badge } from '@/components/ui/badge';
 import { cn, formatTimeAgo } from '@/lib/utils';
 import { useBreakpoints } from '@/hooks';
 import { INote } from '@/type';
+import {
+  getBadgeClasses,
+  getNoteCardClasses,
+} from '@/pages/authenticated/dashboard/helpers/getStyleClasses';
 
 interface NoteCardProps {
   data: INote;
 }
-
-const getNoteCardClasses = (color: string) => {
-  return `bg-${color}-50 hover:bg-${color}-50 text-${color}-800 border-${color}-300`;
-};
-
-const getBadgeClasses = (color: string) => {
-  return `bg-${color}-200 text-${color}-800`;
-};
 
 const NoteCard = ({ data }: NoteCardProps) => {
   const { content, createdAt, updatedAt, title, tag } = data;
@@ -33,8 +29,8 @@ const NoteCard = ({ data }: NoteCardProps) => {
   return (
     <Card
       className={cn(
-        'h-40 w-full mt-4 md:mt-0 md:h-60 md:w-80 overflow-hidden cursor-pointer rounded-md transition-all select-none bg-red-200',
-        getNoteCardClasses(tag.color)
+        'h-40 w-full mt-4 md:mt-0 md:h-60 md:w-80 overflow-hidden cursor-pointer rounded-md transition-all select-none',
+        getNoteCardClasses(tag.color, false)
       )}
     >
       <CardHeader>

@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axiosRequest from '..';
 import { IGetAllTagResponse } from '@/types/tag.type';
-import { TypeCreateNewTagSchema } from '@/pages/authenticated/profile/components/tags-setting/new-tag-dialog/schema';
+import { TypeCreateNewTagSchema } from '@/pages/authenticated/profile/components/tags-setting/components/tag-management-dialog/schema';
 import { BaseResponse } from '@/type';
 
 export const useGetAllTag = () => {
@@ -44,6 +44,27 @@ export const useDeleteTagById = () => {
         {
           withCredentials: true,
         }
+      );
+
+      return response;
+    },
+  });
+};
+
+interface IEditTagByIdPayload {
+  tagId: string;
+  name: string | undefined;
+  color: string | undefined;
+}
+
+export const useEditTagById = () => {
+  return useMutation({
+    mutationKey: ['tag.edit-tag'],
+    mutationFn: async (payload: IEditTagByIdPayload) => {
+      const response = await axiosRequest.patch<BaseResponse>(
+        '/tag/edit',
+        payload,
+        { withCredentials: true }
       );
 
       return response;
