@@ -1,11 +1,11 @@
 version: '3'
 
 services:
-  vite-react-app:
+  noted-react-app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - '3000:80'
-    container_name: vite-react-app
+      - '5173:80'
+    container_name: noted-react-app
     restart: unless-stopped
