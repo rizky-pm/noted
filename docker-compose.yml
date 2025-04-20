@@ -2,7 +2,9 @@ version: '3'
 
 services:
   vite-react-app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - '3000:80'
     container_name: vite-react-app
