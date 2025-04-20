@@ -165,13 +165,13 @@ const ViewNote = (note: INote) => {
       >
         <DialogContent
           className={cn(
-            'max-w-[37.5rem]',
+            'max-w-[37.5rem] w-11/12 rounded-md text-sm md:text-base',
             getNoteCardClasses(note.tag.color, isEditMode)
           )}
         >
           {isEditMode ? (
             <>
-              <DialogHeader>
+              <DialogHeader className='text-left'>
                 <DialogTitle>Edit note</DialogTitle>
                 <DialogDescription className='text-sm'>
                   {moment.unix(timestamp).format('ddd, DD MMMM YYYY')}
@@ -193,7 +193,7 @@ const ViewNote = (note: INote) => {
                           </Label>
                           <Input
                             id='title'
-                            className='col-span-3'
+                            className='col-span-3 text-sm'
                             placeholder='Your new note title'
                             maxLength={25}
                             {...field}
@@ -223,7 +223,11 @@ const ViewNote = (note: INote) => {
                               </SelectTrigger>
                               <SelectContent>
                                 {tags.map((tag) => (
-                                  <SelectItem key={tag._id} value={tag.code}>
+                                  <SelectItem
+                                    key={tag._id}
+                                    value={tag.code}
+                                    className='text-sm'
+                                  >
                                     {tag.label}
                                   </SelectItem>
                                 ))}
@@ -247,7 +251,7 @@ const ViewNote = (note: INote) => {
                         <Textarea
                           id='Your new note content'
                           placeholder='Type your message here.'
-                          className='col-span-3'
+                          className='col-span-3 text-sm'
                           rows={10}
                           maxLength={500}
                           {...field}
@@ -260,14 +264,16 @@ const ViewNote = (note: INote) => {
                     )}
                   />
 
-                  <DialogFooter className='flex'>
-                    <div className='flex items-center gap-2 mr-auto'>
+                  <DialogFooter className='flex flex-row justify-between'>
+                    <div className='flex items-center gap-2'>
                       <Clock className='w-4 h-4' />
 
                       <p className=''>{formatTimeAgo(timestamp)}</p>
                     </div>
                     <div>
-                      <Button type='submit'>Save</Button>
+                      <Button type='submit' size={'sm'}>
+                        Save
+                      </Button>
                     </div>
                   </DialogFooter>
                 </form>
@@ -275,7 +281,7 @@ const ViewNote = (note: INote) => {
             </>
           ) : (
             <>
-              <DialogHeader>
+              <DialogHeader className='text-left'>
                 <DialogTitle>{note.title}</DialogTitle>
                 <DialogDescription className='text-sm'>
                   {moment.unix(timestamp).format('ddd, DD MMMM YYYY')}
@@ -291,8 +297,8 @@ const ViewNote = (note: INote) => {
           )}
 
           {!isEditMode ? (
-            <DialogFooter className='flex'>
-              <div className='flex items-center gap-2 mr-auto'>
+            <DialogFooter className='flex flex-row justify-between'>
+              <div className='flex items-center gap-2 md:mr-auto'>
                 <Clock className='w-4 h-4' />
 
                 <p className=''>{formatTimeAgo(timestamp)}</p>
