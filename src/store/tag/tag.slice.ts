@@ -7,7 +7,7 @@ export const tagSlice = createSlice({
   name: 'tag',
   initialState,
   reducers: {
-    storeTagData: (state, action: PayloadAction<ITag[]>) => {
+    storeTagData: (_state, action: PayloadAction<ITag[]>) => {
       return action.payload;
     },
   },
