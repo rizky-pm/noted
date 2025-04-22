@@ -5,7 +5,7 @@ export const getWebSocket = (path: string): WebSocket => {
     throw new Error('WebSocket path must be provided');
   }
 
-  const url = `ws://localhost:8080${path}`;
+  const url = `${import.meta.env.VITE_WS_URL}${path}`;
 
   const existingSocket = socketMap.get(path);
   if (existingSocket && existingSocket.readyState !== WebSocket.CLOSED) {
